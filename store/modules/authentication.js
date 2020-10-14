@@ -1,53 +1,75 @@
-import { authenticationService } from '../../services/authentication'
 
-let userData = null
-if (process.browser) {
-  userData = JSON.parse(localStorage.getItem('userData'))
-}
+import errorResponseAlert from '../../helpers/axios-request-error'
 
 export const authenticationStore = {
   namespaced: true,
-  state: userData ? { status: { loggedIn: true }, userData } : { status: { loggedIn: false }, userData: null },
+  state: { authenticationStatus: 'No user logged in.' },
   getters: {
-    status (state) {
-      return state.status
-    },
-    userData (state) {
-      return state.userData
+    authenticationStatus (state) {
+      return state.authenticationStatus
     }
   },
   actions: {
-    postLogin ({ commit }, { username, password }) {
+    async postLogin ({ commit }, { username, password }) {
       commit('loginRequested', { username })
       try {
-        userData = authenticationService.postLogin(username, password)
-        commit('loginSuccess', userData)
+        const loginResponse = await this.$axios.post('/authentication/login/', { username, password })
+        if (loginResponse.data.access_token && loginResponse.data.refresh_token && loginResponse.data.user.pk) {
+          const userData = {
+            token: {
+              access: loginResponse.data.access_token,
+              refresh: loginResponse.data.refresh_token
+            }
+          }
+          commit('setToken', userData.token)
+          commit('setHeader', userData.token)
+          const profileResponse = await this.$axios.get('/user_profile/' + loginResponse.data.user.pk + ' /')
+          commit('loginSuccess', profileResponse.data)
+          this.$router.push('/')
+        } else {
+          alert('No authentication respone')
+        }
       } catch (error) {
+        errorResponseAlert(error)
         commit('loginFailure', error)
         throw new Error(error)
       }
     },
     postLogout ({ commit }) {
-      authenticationService.postLogout()
-      commit('logoutRequested')
+      try {
+        this.$axios.post('/authentication/logout/')
+        delete this.$axios.defaults.headers.common.Authorization
+        commit('logoutSuccess')
+      } catch (error) {
+        errorResponseAlert(error)
+        throw new Error(error)
+      }
     }
   },
   mutations: {
     loginRequested (state, username) {
-      state.status = { loggingIn: true }
-      state.userData = { user: { username } }
+      state.authenticationStatus = `The user ${username} is logging in.`
+    },
+    setToken (state, token) {
+      this.$auth.setToken('local', `Bearer ${token.access}`)
+      this.$auth.setRefreshToken('local', token.refresh)
+      state.authenticationStatus = 'Tokens are set.'
+    },
+    setHeader (state, token) {
+      this.$axios.setToken(token.access, 'Bearer')
+      this.$axios.get('/debugger/')
+      state.authenticationStatus = 'Axios header is set.'
     },
     loginSuccess (state, userData) {
-      state.status = { loggedIn: true }
-      state.userData = userData
+      this.$auth.setUser(userData)
+      state.authenticationStatus = 'A user is logged in.'
     },
-    loginFailure (state) {
-      state.status = {}
-      state.userData = null
+    loginFailure (state, error) {
+      state.authenticationStatus = `Logging in error with status: ${error.response.status}.`
     },
-    logoutRequested (state) {
-      state.status = { loggedIn: false }
-      state.userData = null
+    logoutSuccess (state) {
+      state.authenticationStatus = 'No user logged in.'
+      this.$auth.logout()
     }
   }
 }

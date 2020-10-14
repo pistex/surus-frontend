@@ -1,5 +1,3 @@
-import colors from 'vuetify/es5/util/colors'
-
 export default {
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
@@ -20,30 +18,26 @@ export default {
   ],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [
-  ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
 
   // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
   buildModules: [
-    // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
-    // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify'
   ],
 
-  // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
-    // https://go.nuxtjs.dev/content
-    '@nuxt/content'
+    '@nuxt/content',
+    '@nuxtjs/auth'
   ],
 
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
-  axios: {},
+  axios: {
+    baseURL: 'http://localhost:8000'
+  },
 
   // Content module configuration (https://go.nuxtjs.dev/config-content)
   content: {},
@@ -52,6 +46,20 @@ export default {
   vuetify: {},
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
-  build: {
-  }
+  build: {},
+  auth: {
+    localStorage: false,
+    strategies: {
+      local: {
+        endpoints: {
+          login: { url: '/authentication/login/', method: 'post', propertyName: false },
+          logout: { url: '/authentication/logout/', method: 'post', propertyName: false },
+          user: { url: '/user_profile/', method: 'get', propertyName: false }
+        }
+      }
+    },
+    tokenType: 'Bearer',
+    plugins: [{ src: '~/plugins/auth.js', mode: 'client' }]
+  },
+  middleware: ['loggedIn']
 }

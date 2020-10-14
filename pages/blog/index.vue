@@ -1,7 +1,8 @@
 <template>
   <v-container id="blog">
-    <v-row v-if="userData" justify="center">
+    <v-row v-if="$auth.LoggedIn" justify="center">
       <v-col cols="10" class="pb-2 px-0" align="start">
+        {{ this.$auth }}
         <v-btn dark to="/blog_create">
           Create
         </v-btn>
@@ -52,8 +53,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('blogStore', ['allImages']),
-    ...mapGetters('authenticationStore', ['userData'])
+    ...mapGetters('blogStore', ['allImages'])
   },
   created () {
     if (process.browser) {

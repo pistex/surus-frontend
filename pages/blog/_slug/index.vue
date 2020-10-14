@@ -3,7 +3,7 @@
     <v-row justify="center" no-gutters>
       <v-col cols="10" align="end" class="pb-2">
         <v-btn
-          v-if="userData"
+          v-if="$auth.LoggedIn"
           dark
           class="mr-2"
           :to="'./edit'"
@@ -115,11 +115,9 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 
-import Axios from '../../../axios'
 export default {
-  async asyncData ({ store, params }) {
+  async asyncData ({ $axios, store, params }) {
     let htmlBody = ''
     let blogTitle = ''
     let htmlBodyTh = ''
@@ -130,8 +128,8 @@ export default {
     const blogHistorySelector = []
 
     try {
-      const filteredArticle = await Axios.get('/blog/?slug=' + params.slug)
-      const blogData = await Axios.get('/blog/' + filteredArticle.data[0].id + '/')
+      const filteredArticle = await $axios.get('/blog/?slug=' + params.slug)
+      const blogData = await $axios.get('/blog/' + filteredArticle.data[0].id + '/')
       if (Object.keys(blogData.data.history).length > 1) {
         blogIsEdited = true
         Object.keys(blogData.data.history).forEach((element) => {
@@ -167,7 +165,6 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('authenticationStore', ['userData'])
   },
   async created () {
   },

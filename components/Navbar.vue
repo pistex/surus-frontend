@@ -41,7 +41,7 @@
     </v-app-bar>
     <v-container>
       <v-navigation-drawer v-model="drawer" absolute temporary right dark>
-        <v-card v-if="!status.loggedIn" height="100%">
+        <v-card v-if="!$auth.loggedIn" height="100%">
           <v-card-title primary-title>
             Login
           </v-card-title>
@@ -72,9 +72,9 @@
             </v-card-actions>
           </v-card-text>
         </v-card>
-        <v-card v-if="status.loggedIn" height="100%">
+        <v-card v-if="$auth.$state.loggedIn" height="100%">
           <v-card-title primary-title>
-            Hello, {{ userData.username }}.
+            {{ $auth.$state.user }}.
           </v-card-title>
           <v-card-actions>
             <v-btn
@@ -113,7 +113,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('authenticationStore', ['status', 'userData'])
+    ...mapGetters('authenticationStore', ['authenticationStatus'])
+  },
+  mounted () {
   },
   methods: {
     ...mapActions('authenticationStore', ['postLogin', 'postLogout'])
