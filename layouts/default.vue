@@ -35,25 +35,16 @@ export default {
   color: #fff;
   overflow-x: auto;
 }
-.editor__content blockquote {
+.editor__content blockquote, .blog__content blockquote{
   border-left: 3px solid rgba(0, 0, 0, 0.1);
   color: rgba(0, 0, 0, 0.8);
   padding-left: 0.8rem;
   font-style: italic;
 }
-.editor__content blockquote p {
+.editor__content blockquote p, .blog__content blockquote p{
   margin: 0;
 }
-.blog__content blockquote {
-  border-left: 3px solid rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.8);
-  padding-left: 0.8rem;
-  font-style: italic;
-}
-.blog__content blockquote p {
-  margin: 0;
-}
-.blog__content p img{
+.editor__content img, .blog__content img{
   display: block;
   margin-left: auto;
   margin-right: auto;

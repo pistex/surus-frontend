@@ -60,7 +60,6 @@ export default {
         }
       }
     },
-    tokenType: 'Bearer',
     plugins: [{ src: '@/plugins/auth.js', mode: 'client' }]
   },
   plugins: [

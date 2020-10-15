@@ -44,14 +44,14 @@ export default async function ({ app }) {
     }
   }
 
-  let tokenRefreshInterval
-  try {
-    tokenRefreshInterval = setInterval(async function () {
+  const tokenRefreshInterval = setInterval(async function () {
+    try {
       accessToken = $auth.getToken(strategy)
       refreshToken = $auth.getRefreshToken(strategy)
       await tokenRefresher($auth, $router, $axios, accessToken, refreshToken)
-    }, refreshInterval)
-  } catch (error) {
-    clearInterval(tokenRefreshInterval)
-  }
+    } catch (error) {
+      clearInterval(tokenRefreshInterval)
+      throw new Error(error)
+    }
+  }, refreshInterval)
 }

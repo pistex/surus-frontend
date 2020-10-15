@@ -36,9 +36,9 @@ export const authenticationStore = {
         // throw new Error(error)
       }
     },
-    postLogout ({ commit }) {
+    async postLogout ({ commit }) {
       try {
-        this.$axios.post('/authentication/logout/')
+        await this.$axios.post('/authentication/logout/')
         delete this.$axios.defaults.headers.common.Authorization
         commit('logoutSuccess')
       } catch (error) {
@@ -58,7 +58,6 @@ export const authenticationStore = {
     },
     setHeader (state, token) {
       this.$axios.setToken(token.access, 'Bearer')
-      this.$axios.get('/debugger/')
       state.authenticationStatus = 'Axios header is set.'
     },
     loginSuccess (state, userData) {

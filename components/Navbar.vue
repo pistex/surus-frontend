@@ -40,7 +40,13 @@
       </v-toolbar-items>
     </v-app-bar>
     <v-container>
-      <v-navigation-drawer v-model="drawer" absolute temporary right dark>
+      <v-navigation-drawer
+        v-model="drawer"
+        app
+        temporary
+        right
+        dark
+      >
         <v-card v-if="!$auth.loggedIn" height="100%">
           <v-card-title>
             Login

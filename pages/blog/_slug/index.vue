@@ -99,6 +99,54 @@
         <v-container class="text-button black white--text">
           Comment
         </v-container>
+        <v-container>
+          <v-card v-for="comment in allComments" :key="`comment_${comment.id}`" class="mb-4">
+            <!-- {{ comment }} -->
+            <v-card-actions class="justify-end pb-0">
+              <v-btn v-if="comment.user && comment.user.username === $auth.$state.user.username" x-small text @click="activateCommentEditior(comment.id)">
+                <v-icon small>
+                  mdi-pencil
+                </v-icon>
+              </v-btn>
+              <v-btn v-if="comment.user && comment.user.username === $auth.$state.user.username" x-small text>
+                <v-icon small>
+                  mdi-delete
+                </v-icon>
+              </v-btn>
+            </v-card-actions>
+            <v-card-title v-if="comment.user" class="py-0 black--text">
+              <v-avatar
+                class="mr-2"
+              >
+                <v-img :src="comment.user.profile_picture" />
+              </v-avatar>
+              {{ comment.user.first_name !== '' && comment.user.last_name !== '' ? `${comment.user.first_name} ${comment.user.last_name}` : comment.user.username }}
+            </v-card-title>
+
+            <v-card-title v-if="!comment.user" class="py-0 black--text">
+              <v-avatar
+                class="mr-2"
+              >
+                <v-img :src="`${$axios.defaults.baseURL}/media/default_profile_picture.png`" />
+              </v-avatar>
+              anonymous
+            </v-card-title>
+            <v-card-text :id="`comment_${comment.id}`" class="pt-2 black--text">
+              {{ comment.body }}
+            </v-card-text>
+            <v-card-text :id="`comment_editor_${comment.id}`" style="display: none;" class="pt-2 black--text">
+              <v-text-field v-model="editingComment" color="black" @keyup.enter="patchComment(comment.id)" />
+            </v-card-text>
+          </v-card>
+          <v-card>
+            <v-textarea color="black" hide-details="auto" counter="200" class="pa-2" />
+            <v-card-actions class="justify-end">
+              <v-btn dark>
+                comment
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-container>
       </v-col>
       <v-col cols="4">
         <v-container
@@ -116,6 +164,7 @@
 export default {
   async asyncData ({ $axios, store, params }) {
     let htmlBody = ''
+    let blogId = 0
     let blogTitle = ''
     let htmlBodyTh = ''
     let blogTitleTh = ''
@@ -130,8 +179,9 @@ export default {
     const blogHistorySelector = []
 
     try {
-      const filteredArticle = await $axios.get('/blog/?slug=' + params.slug)
-      const blogData = await $axios.get('/blog/' + filteredArticle.data[0].id + '/')
+      const filteredArticle = await $axios.get(`/blog/?slug=${params.slug}`)
+      blogId = filteredArticle.data[0].id
+      const blogData = await $axios.get(`/blog/${blogId}/`)
       if (Object.keys(blogData.data.history).length > 1) {
         blogIsEdited = true
         Object.keys(blogData.data.history).forEach((element) => {
@@ -158,7 +208,9 @@ export default {
       blogThumbnail = allImages.find(
         object => object.id === blogData.data.thumbnail
       ).image
-      return { htmlBody, htmlBodyTh, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor }
+      const commentData = await $axios.get(`/comment/?blog=${filteredArticle.data[0].id}`)
+      const allComments = commentData.data
+      return { htmlBody, htmlBodyTh, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor, allComments }
     } catch (error) {
       throw new Error(error)
     }
@@ -167,7 +219,10 @@ export default {
     return {
       isPrimaryLanguge: true,
       selectedBlogDate: null,
-      historyPopup: false
+      historyPopup: false,
+      editingComment: '',
+      editingReason: '',
+      currentComment: ''
     }
   },
   computed: {
@@ -177,10 +232,44 @@ export default {
   mounted () {
     this.resizeImage('blog__content')
   },
+  updated () {
+    this.resizeImage('blog__content')
+  },
   methods: {
-
-    async getBlogComments () {
-
+    activateCommentEditior (id) {
+      this.editingComment = this.allComments.find(object => object.id === id).body.trim()
+      const commentElement = document.getElementById(`comment_${id}`)
+      const commentEditor = document.getElementById(`comment_editor_${id}`)
+      if (commentElement.style.display === '' && commentEditor.style.display === 'none') {
+        commentElement.style.display = 'none'
+        commentEditor.style.display = ''
+      } else {
+        commentElement.style.display = ''
+        commentEditor.style.display = 'none'
+      }
+    },
+    async patchComment (id) {
+      this.currentComment = this.allComments.find(object => object.id === id).body.trim()
+      const commentElement = document.getElementById(`comment_${id}`)
+      const commentEditor = document.getElementById(`comment_editor_${id}`)
+      if (this.editingComment === this.currentComment) {
+        commentElement.style.display = ''
+        commentEditor.style.display = 'none'
+        return
+      }
+      const commentPatch = {
+        body: this.editingComment,
+        blog_id: this.blogId,
+        reason: this.editingReason !== '' ? this.editingReason : 'no reason'
+      }
+      try {
+        await this.$axios.patch(`/comment/${id}/`, commentPatch)
+      } catch (error) {
+        throw new Error(error)
+      }
+      commentElement.innerHTML = this.editingComment
+      commentElement.style.display = ''
+      commentEditor.style.display = 'none'
     },
     resizeImage (classname) {
       const d = Array.from(document.getElementsByClassName(classname))
@@ -201,6 +290,7 @@ export default {
       ).content_th
       document.getElementById('history_button').innerHTML =
         'Blog version: ' + this.selectedBlogDate
+      this.resizeImage('blog__content')
     }
   }
 }
