@@ -1,7 +1,7 @@
 import jwtDecode from 'jwt-decode'
 const strategy = 'local'
 const FALLBACK_INTERVAL = 4 * 60 * 1000 * 0.75
-async function refreshTokenF ($auth, $router, $axios, accessToken, refreshToken) {
+async function tokenRefresher ($auth, $router, $axios, accessToken, refreshToken) {
   if (accessToken && refreshToken) {
     try {
       const response = await $axios.post('/authentication/token/refresh/', {
@@ -19,9 +19,7 @@ async function refreshTokenF ($auth, $router, $axios, accessToken, refreshToken)
       throw new Error(error)
     }
   } else {
-    $auth.logout()
-    alert('There is an error while refreshing token.')
-    throw new Error('There is an error while refreshing token.')
+    throw new Error('There is an error while refreshing token. You can ignore this error if no user is logged in.')
   }
 }
 
@@ -42,12 +40,18 @@ export default async function ({ app }) {
     }
     if (refreshInterval < 0) {
       // this means the access token is expired.
-      refreshInterval = (await refreshTokenF($auth, $router, $axios, accessToken, refreshToken) * 1000 - Date.now()) * 0.75
+      refreshInterval = (await tokenRefresher($auth, $router, $axios, accessToken, refreshToken) * 1000 - Date.now()) * 0.75
     }
   }
-  setInterval(async function () {
-    accessToken = $auth.getToken(strategy)
-    refreshToken = $auth.getRefreshToken(strategy)
-    await refreshTokenF($auth, $router, $axios, accessToken, refreshToken)
-  }, refreshInterval)
+
+  let tokenRefreshInterval
+  try {
+    tokenRefreshInterval = setInterval(async function () {
+      accessToken = $auth.getToken(strategy)
+      refreshToken = $auth.getRefreshToken(strategy)
+      await tokenRefresher($auth, $router, $axios, accessToken, refreshToken)
+    }, refreshInterval)
+  } catch (error) {
+    clearInterval(tokenRefreshInterval)
+  }
 }

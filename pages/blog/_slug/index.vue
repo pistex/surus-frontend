@@ -3,10 +3,10 @@
     <v-row justify="center" no-gutters>
       <v-col cols="10" align="end" class="pb-2">
         <v-btn
-          v-if="$auth.LoggedIn"
+          v-if="$auth.$state.loggedIn && $auth.$state.user.username === blogAuthor.username"
           dark
           class="mr-2"
-          :to="'./edit'"
+          :to="`/blog/${$route.params.slug}/edit`"
         >
           edit
         </v-btn>
@@ -52,52 +52,49 @@
       </v-col>
     </v-row>
     <v-row justify="center" no-gutters>
-      <client-only>
-        <v-col v-show="isPrimaryLanguge" cols="10">
-          <v-sheet>
-            <v-card>
-              <v-img
-                dark
-                height="200px"
-                :src="blogThumbnail"
-                gradient="to top right, rgba(0,0,0,.5), rgba(50,50,50,.5)"
-                class="align-end title_background"
-              >
-                <v-card-title class="text-h4">
-                  {{ blogTitle }}
-                </v-card-title>
-              </v-img>
-              <v-card-text
-                id="content_en"
-                class="blog_body black--text"
-                v-html="htmlBody"
-              />
-            </v-card>
-          </v-sheet>
-        </v-col>
-        <v-col v-show="!isPrimaryLanguge" cols="10">
-          <v-sheet>
-            <v-card>
-              <v-img
-                dark
-                height="200px"
-                :src="blogThumbnail"
-                gradient="to top right, rgba(0,0,0,.5), rgba(50,50,50,.5)"
-                class="align-end title_background"
-              >
-                <v-card-title class="text-h4">
-                  {{ blogTitleTh }}
-                </v-card-title>
-              </v-img>
-              <v-card-text
-                id="content_th"
-                class="blog_body black--text"
-                v-html="htmlBodyTh"
-              />
-            </v-card>
-          </v-sheet>
-        </v-col>
-      </client-only>
+      <v-col v-show="isPrimaryLanguge" cols="10">
+        <v-sheet>
+          <v-card>
+            <v-img
+              dark
+              height="200px"
+              :src="blogThumbnail"
+              gradient="to top right, rgba(0,0,0,.5), rgba(50,50,50,.5)"
+              class="align-end"
+            >
+              <v-card-title class="text-h4">
+                {{ blogTitle }}
+              </v-card-title>
+            </v-img>
+            <v-card-text
+              id="content_en"
+              class="black--text blog__content"
+              v-html="htmlBody"
+            />
+          </v-card>
+        </v-sheet>
+      </v-col>
+      <v-col v-show="!isPrimaryLanguge" cols="10">
+        <v-sheet>
+          <v-card>
+            <v-img
+              dark
+              height="200px"
+              :src="blogThumbnail"
+              gradient="to top right, rgba(0,0,0,.5), rgba(50,50,50,.5)"
+              class="align-end"
+            />
+            <v-card-title class="text-h4">
+              {{ blogTitleTh }}
+            </v-card-title>
+            <v-card-text
+              id="content_th"
+              class="black--text blog__content"
+              v-html="htmlBodyTh"
+            />
+          </v-card>
+        </v-sheet>
+      </v-col>
       <v-col cols="6">
         <v-container class="text-button black white--text">
           Comment
@@ -123,6 +120,11 @@ export default {
     let htmlBodyTh = ''
     let blogTitleTh = ''
     let blogThumbnail = ''
+    let blogAuthor = {
+      username: '',
+      first_name: '',
+      last_name: ''
+    }
     let blogIsEdited = false
     const blogHistory = []
     const blogHistorySelector = []
@@ -146,14 +148,18 @@ export default {
       htmlBodyTh = blogData.data.body.th
       blogTitle = blogData.data.title.en
       blogTitleTh = blogData.data.title.th
+      blogAuthor = {
+        username: blogData.data.author.username,
+        first_name: blogData.data.author.first_name,
+        last_name: blogData.data.author.last_name
+      }
       await store.dispatch('blogStore/getImages')
       const allImages = await store.getters['blogStore/allImages']
       blogThumbnail = allImages.find(
         object => object.id === blogData.data.thumbnail
       ).image
-      return { htmlBody, htmlBodyTh, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector }
+      return { htmlBody, htmlBodyTh, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor }
     } catch (error) {
-      console.log('get blog error')
       throw new Error(error)
     }
   },
@@ -166,23 +172,23 @@ export default {
   },
   computed: {
   },
-  async created () {
+  created () {
   },
-  updated () {
-    // this.resizeImage('blog_body')
+  mounted () {
+    this.resizeImage('blog__content')
   },
   methods: {
 
     async getBlogComments () {
 
     },
-    async resizeImage (classname) {
-      await this.$store.dispatch('sleep', 400)
+    resizeImage (classname) {
       const d = Array.from(document.getElementsByClassName(classname))
       d.forEach((d) => {
         const images = d.querySelectorAll('img')
         Array.from(images).forEach((element) => {
           element.width = 600
+          element.class = 'center_image'
         })
       })
     },
@@ -200,5 +206,5 @@ export default {
 }
 </script>
 
-<style>
+<style >
 </style>

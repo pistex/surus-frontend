@@ -42,7 +42,7 @@
     <v-container>
       <v-navigation-drawer v-model="drawer" absolute temporary right dark>
         <v-card v-if="!$auth.loggedIn" height="100%">
-          <v-card-title primary-title>
+          <v-card-title>
             Login
           </v-card-title>
           <v-card-text>
@@ -73,19 +73,33 @@
           </v-card-text>
         </v-card>
         <v-card v-if="$auth.$state.loggedIn" height="100%">
-          <v-card-title primary-title>
-            {{ $auth.$state.user }}.
+          <v-card-title class="justify-center pb-0">
+            <p class="text-h6">
+              Welcome!
+            </p>
           </v-card-title>
-          <v-card-actions>
-            <v-btn
-              text
-              outlined
-              color="success"
-              @click="postLogout()"
-            >
-              Logout
-            </v-btn>
-          </v-card-actions>
+          <v-container class="pa-0 text-center">
+            <v-avatar size="100">
+              <v-img :src="$auth.$state.user.profile_picture" />
+            </v-avatar>
+          </v-container>
+          <v-card-title class="justify-center py-0">
+            <p class="text-h4">
+              {{ $auth.$state.user.first_name !== '' && $auth.$state.user.first_name !== '' ? `${$auth.$state.user.first_name} ${$auth.$state.user.first_name}` : $auth.$state.user.username }}
+            </p>
+          </v-card-title>
+          <v-card-text>
+            <v-card-actions class="justify-center">
+              <v-btn
+                text
+                outlined
+                color="error"
+                @click="postLogout()"
+              >
+                Logout
+              </v-btn>
+            </v-card-actions>
+          </v-card-text>
         </v-card>
       </v-navigation-drawer>
     </v-container>

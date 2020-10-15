@@ -1,9 +1,10 @@
 <template>
   <v-container id="blog">
-    <v-row v-if="$auth.LoggedIn" justify="center">
+    <!-- check if a user is logged in first by $auth.$state.loggedIn to prevent an error
+    for $auth.$state.user === null -->
+    <v-row v-if="$auth.$state.loggedIn && $auth.$state.user.groups.includes('Creator')" justify="center">
       <v-col cols="10" class="pb-2 px-0" align="start">
-        {{ this.$auth }}
-        <v-btn dark to="/blog_create">
+        <v-btn dark to="/blog/create">
           Create
         </v-btn>
       </v-col>

@@ -46,7 +46,9 @@ export default {
   vuetify: {},
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
-  build: {},
+  build: {
+    transpile: ['tiptap.js', 'tiptap-extentions.js', 'highlight.js', 'vue-clipboard2']
+  },
   auth: {
     localStorage: false,
     strategies: {
@@ -59,7 +61,13 @@ export default {
       }
     },
     tokenType: 'Bearer',
-    plugins: [{ src: '~/plugins/auth.js', mode: 'client' }]
+    plugins: [{ src: '@/plugins/auth.js', mode: 'client' }]
   },
+  plugins: [
+    { src: '@/plugins/tiptap.js', mode: 'client' },
+    { src: '@/plugins/tiptap-extensions.js', mode: 'client' },
+    { src: '@/plugins/highlight.js', mode: 'client' },
+    { src: '@/plugins/vue-clipboard2.js', mode: 'client' }
+  ],
   middleware: ['loggedIn']
 }

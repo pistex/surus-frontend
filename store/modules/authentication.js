@@ -32,7 +32,8 @@ export const authenticationStore = {
       } catch (error) {
         errorResponseAlert(error)
         commit('loginFailure', error)
-        throw new Error(error)
+        // We don't want any redirection here.
+        // throw new Error(error)
       }
     },
     postLogout ({ commit }) {
