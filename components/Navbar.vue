@@ -72,7 +72,7 @@
               >
                 Login
               </v-btn>
-              <v-btn text outlined color="info">
+              <v-btn text outlined color="info" @click="registerationFormIsActivated = true">
                 Registeration
               </v-btn>
             </v-card-actions>
@@ -94,32 +94,116 @@
               {{ $auth.$state.user.first_name !== '' && $auth.$state.user.first_name !== '' ? `${$auth.$state.user.first_name} ${$auth.$state.user.first_name}` : $auth.$state.user.username }}
             </p>
           </v-card-title>
-          <v-card-text>
-            <v-card-actions class="justify-center">
-              <v-btn
-                text
-                outlined
-                color="error"
-                @click="postLogout()"
-              >
-                Logout
-              </v-btn>
-            </v-card-actions>
+          <v-card-title class="justify-center py-0">
+            <p class="text-h6">
+              {{ $auth.$state.user.email.filter((object) => {return object.is_primary = true})[0].email }}
+            </p>
+          </v-card-title>
+          <v-card-text class="white--text text-center py-0">
+            <p>
+              {{ $auth.$state.user.groups.includes('Creator') ? "Let's writing something!": "Welcome to our community!" }}
+            </p>
+            <p v-if="!$auth.$state.user.groups.includes('Creator')">
+              You can contact admin to become a creator.
+            </p>
           </v-card-text>
+          <v-card-actions class="justify-center">
+            <v-btn
+              text
+              outlined
+              color="info"
+            >
+              Edit profile
+            </v-btn>
+            <v-spacer />
+            <v-btn
+              text
+              outlined
+              color="error"
+              @click="postLogout()"
+            >
+              Logout
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </v-navigation-drawer>
     </v-container>
+    <v-dialog
+      v-model="registerationFormIsActivated"
+      persistent
+      max-width="600px"
+    >
+      <v-card dark>
+        <v-card-title>
+          <span class="headline">Registeration</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="registerForm.email"
+                  label="Email"
+                  required
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="registerForm.username"
+                  label="Username"
+                  required
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="registerForm.password1"
+                  label="Password"
+                  type="password"
+                  required
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="registerForm.password2"
+                  label="Comfirm password"
+                  type="password"
+                  required
+                />
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            color="error"
+            text
+            @click="registerationFormIsActivated = false"
+          >
+            Close
+          </v-btn>
+          <v-btn
+            text
+            color="success"
+            @click="postRegister()"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-
+import errorResponseAlert from '@/helpers/axios-request-error'
 export default {
   name: 'Navbar',
   data () {
     return {
       drawer: false,
+      registerationFormIsActivated: false,
       menuItems: [
         { title: 'Home', path: '/', icon: 'mdi-home' },
         { title: 'Blog', path: '/blog/', icon: 'mdi-newspaper' },
@@ -129,7 +213,12 @@ export default {
         username: '',
         password: ''
       },
-      emailPasswordReset: ''
+      registerForm: {
+        username: null,
+        email: null,
+        password1: null,
+        password2: null
+      }
     }
   },
   computed: {
@@ -138,7 +227,26 @@ export default {
   mounted () {
   },
   methods: {
-    ...mapActions('authenticationStore', ['postLogin', 'postLogout'])
+    ...mapActions('authenticationStore', ['postLogin', 'postLogout']),
+    async postRegister () {
+      if (!this.registerForm.user && !this.registerForm.email) {
+        alert('Please fill required filed.')
+      } else if (this.registerForm.password1 !== this.registerForm.password2) {
+        alert('Password confirmation failed.')
+      } else {
+        this.registerationFormIsActivated = false
+        try {
+          await this.$axios.post('/authentication/registration/', this.registerForm)
+        } catch (error) {
+          errorResponseAlert(error)
+        }
+        try {
+          this.postLogin({ username: this.registerForm.username, password: this.registerForm.password2 })
+        } catch (error) {
+          alert('registeration completed')
+        }
+      }
+    }
   }
 }
 </script>

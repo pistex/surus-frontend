@@ -30,9 +30,16 @@ export default {
 
   modules: [
     '@nuxtjs/axios',
-    '@nuxt/content',
-    '@nuxtjs/auth'
+    '@nuxtjs/auth',
+    '@nuxtjs/recaptcha'
   ],
+
+  recaptcha: {
+    siteKey: '6LcawdcZAAAAAD4XM1fQFRlXj5xj4oAY8cBmC9xa',
+    size: 'invisible',
+    hideBadge: false,
+    version: 2
+  },
 
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {

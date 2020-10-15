@@ -101,14 +101,13 @@
         </v-container>
         <v-container>
           <v-card v-for="comment in allComments" :key="`comment_${comment.id}`" class="mb-4">
-            <!-- {{ comment }} -->
             <v-card-actions class="justify-end pb-0">
-              <v-btn v-if="comment.user && comment.user.username === $auth.$state.user.username" x-small text @click="activateCommentEditior(comment.id)">
+              <v-btn v-if="$auth.$state.user.is_superuser || comment.user && $auth.$state.user && comment.user.username === $auth.$state.user.username" x-small text @click="activateCommentEditior(comment.id)">
                 <v-icon small>
                   mdi-pencil
                 </v-icon>
               </v-btn>
-              <v-btn v-if="comment.user && comment.user.username === $auth.$state.user.username" x-small text>
+              <v-btn v-if="$auth.$state.user.is_superuser || comment.user && $auth.$state.user && comment.user.username === $auth.$state.user.username" x-small text @click="deleteComment(comment.id)">
                 <v-icon small>
                   mdi-delete
                 </v-icon>
@@ -139,9 +138,17 @@
             </v-card-text>
           </v-card>
           <v-card>
-            <v-textarea color="black" hide-details="auto" counter="200" class="pa-2" />
+            <v-textarea
+              v-model="newComment"
+              color="black"
+              hide-details="auto"
+              counter="1000"
+              class="pa-2"
+              maxlength="1000"
+            />
             <v-card-actions class="justify-end">
-              <v-btn dark>
+              <recaptcha />
+              <v-btn dark @click="postComment()">
                 comment
               </v-btn>
             </v-card-actions>
@@ -160,7 +167,7 @@
 </template>
 
 <script>
-
+import errorResponseAlert from '@/helpers/axios-request-error'
 export default {
   async asyncData ({ $axios, store, params }) {
     let htmlBody = ''
@@ -210,8 +217,9 @@ export default {
       ).image
       const commentData = await $axios.get(`/comment/?blog=${filteredArticle.data[0].id}`)
       const allComments = commentData.data
-      return { htmlBody, htmlBodyTh, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor, allComments }
+      return { htmlBody, htmlBodyTh, blogId, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor, allComments }
     } catch (error) {
+      errorResponseAlert(error)
       throw new Error(error)
     }
   },
@@ -222,7 +230,8 @@ export default {
       historyPopup: false,
       editingComment: '',
       editingReason: '',
-      currentComment: ''
+      currentComment: '',
+      newComment: ''
     }
   },
   computed: {
@@ -248,6 +257,31 @@ export default {
         commentEditor.style.display = 'none'
       }
     },
+    async postComment () {
+      if (!this.$auth.$state.loggedIn) {
+        try {
+          await this.$recaptcha.getResponse()
+          await this.$recaptcha.reset()
+        } catch (error) {
+          errorResponseAlert(error)
+        }
+      }
+      const commentPost = {
+        body: this.newComment,
+        blog_id: this.blogId
+      }
+      try {
+        await this.$axios.post('/comment/', commentPost)
+        this.allComments.push({
+          id: this.allComments.length + 1,
+          body: this.newComment,
+          user: this.$auth.$state.loggedIn ? this.$auth.$state.user : null
+        })
+        this.newComment = ''
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
     async patchComment (id) {
       this.currentComment = this.allComments.find(object => object.id === id).body.trim()
       const commentElement = document.getElementById(`comment_${id}`)
@@ -264,12 +298,22 @@ export default {
       }
       try {
         await this.$axios.patch(`/comment/${id}/`, commentPatch)
+        commentElement.innerHTML = this.editingComment
+        commentElement.style.display = ''
+        commentEditor.style.display = 'none'
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
+        commentElement.style.display = ''
+        commentEditor.style.display = 'none'
       }
-      commentElement.innerHTML = this.editingComment
-      commentElement.style.display = ''
-      commentEditor.style.display = 'none'
+    },
+    async deleteComment (id) {
+      try {
+        await this.$axios.delete(`/comment/${id}/`)
+        this.allComments = this.allComments.filter((object) => { return object.id !== id })
+      } catch (error) {
+        errorResponseAlert(error)
+      }
     },
     resizeImage (classname) {
       const d = Array.from(document.getElementsByClassName(classname))

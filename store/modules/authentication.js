@@ -1,5 +1,4 @@
-
-import errorResponseAlert from '../../helpers/axios-request-error'
+import errorResponseAlert from '@/helpers/axios-request-error'
 
 export const authenticationStore = {
   namespaced: true,
