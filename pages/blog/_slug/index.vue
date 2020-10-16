@@ -280,7 +280,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
-                <v-btn dark @click="postReply(reply.id)">
+                <v-btn dark @click="postReply(comment.id)">
                   Reply
                 </v-btn>
               </v-card-actions>
@@ -469,6 +469,7 @@ export default {
           await this.$recaptcha.reset()
         } catch (error) {
           alert('reCAPTCHA failed.')
+          return
         }
       }
       const commentPost = {
@@ -517,18 +518,19 @@ export default {
         errorResponseAlert(error)
       }
     },
-    async postReply (replyId) {
+    async postReply (commentId) {
       if (!this.$auth.$state.loggedIn) {
         try {
           await this.$recaptcha.getResponse()
           await this.$recaptcha.reset()
         } catch (error) {
           alert('reCAPTCHA failed.')
+          return
         }
       }
       const replyPost = {
         body: this.newReply,
-        comment_id: replyId
+        comment_id: commentId
       }
 
       try {
