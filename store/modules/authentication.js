@@ -24,7 +24,6 @@ export const authenticationStore = {
           commit('setHeader', userData.token)
           const profileResponse = await this.$axios.get('/user_profile/' + loginResponse.data.user.pk + ' /')
           commit('loginSuccess', profileResponse.data)
-          this.$router.push('/')
         } else {
           alert('No authentication respone')
         }

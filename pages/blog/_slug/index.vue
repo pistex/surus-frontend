@@ -59,12 +59,17 @@
               dark
               height="200px"
               :src="blogThumbnail"
-              gradient="to top right, rgba(0,0,0,.5), rgba(50,50,50,.5)"
+              gradient="to top right, rgba(0,0,0,.8), rgba(0,0,0,1)"
               class="align-end"
             >
               <v-card-title class="text-h4">
                 {{ blogTitle }}
               </v-card-title>
+              <v-card-subtitle class="white--text">
+                <v-icon>mdi-account</v-icon> Creator : {{ blogAuthor.first_name !== '' && blogAuthor.last_name !== '' ? `${blogAuthor.first_name} ${blogAuthor.last_name}` : blogAuthor.username }} <v-icon>mdi-calendar</v-icon> Created: {{ blogHistorySelector[0] }} <v-icon v-if="blogIsEdited">
+                  mdi-calendar-edit
+                </v-icon> {{ blogIsEdited ? `Last modified: ${blogHistorySelector[blogHistorySelector.length -1]}` : '' }}
+              </v-card-subtitle>
             </v-img>
             <v-card-text
               id="content_en"
@@ -81,12 +86,18 @@
               dark
               height="200px"
               :src="blogThumbnail"
-              gradient="to top right, rgba(0,0,0,.5), rgba(50,50,50,.5)"
+              gradient="to top right, rgba(0,0,0,.8), rgba(0,0,0,1)"
               class="align-end"
-            />
-            <v-card-title class="text-h4">
-              {{ blogTitleTh }}
-            </v-card-title>
+            >
+              <v-card-title class="text-h4">
+                {{ blogTitleTh }}
+              </v-card-title>
+              <v-card-subtitle class="white--text">
+                <v-icon>mdi-account</v-icon> ผู้เขียน : {{ blogAuthor.first_name !== '' && blogAuthor.last_name !== '' ? `${blogAuthor.first_name} ${blogAuthor.last_name}` : blogAuthor.username }} <v-icon>mdi-calendar</v-icon> วันที่สร้าง: {{ blogHistorySelector[0] }} <v-icon v-if="blogIsEdited">
+                  mdi-calendar-edit
+                </v-icon> {{ blogIsEdited ? `แก้ไขล่าสุด: ${blogHistorySelector[blogHistorySelector.length -1]}` : '' }}
+              </v-card-subtitle>
+            </v-img>
             <v-card-text
               id="content_th"
               class="black--text blog__content"
@@ -102,40 +113,178 @@
         <v-container>
           <v-card v-for="comment in allComments" :key="`comment_${comment.id}`" class="mb-4">
             <v-card-actions class="justify-end pb-0">
-              <v-btn v-if="$auth.$state.user.is_superuser || comment.user && $auth.$state.user && comment.user.username === $auth.$state.user.username" x-small text @click="activateCommentEditior(comment.id)">
+              <v-btn v-if="($auth.$state.user && $auth.$state.user.is_superuser) || (comment.user && $auth.$state.user && comment.user.username === $auth.$state.user.username)" x-small text @click="activateCommentEditior(comment.id)">
                 <v-icon small>
                   mdi-pencil
                 </v-icon>
               </v-btn>
-              <v-btn v-if="$auth.$state.user.is_superuser || comment.user && $auth.$state.user && comment.user.username === $auth.$state.user.username" x-small text @click="deleteComment(comment.id)">
+              <v-btn v-if="($auth.$state.user && $auth.$state.user.is_superuser) || (comment.user && $auth.$state.user && comment.user.username === $auth.$state.user.username)" x-small text @click="deleteComment(comment.id)">
                 <v-icon small>
                   mdi-delete
                 </v-icon>
               </v-btn>
+              <v-dialog
+                hide-overlay
+                dark
+                max-width="800"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    v-if="Object.keys(comment.history).length > 1"
+                    x-small
+                    text
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    <v-icon small>
+                      mdi-history
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <v-card v-for="date in Object.keys(comment.history)" :key="date" class="pa-2">
+                  <v-card-title class="white--text">
+                    {{ date }}
+                  </v-card-title>
+                  <v-card-subtitle class="pb-2 white--text">
+                    Editing reason: {{ comment.history[date].reason }}
+                  </v-card-subtitle>
+                  <v-card-text class="white--text">
+                    {{ comment.history[date].body }}
+                  </v-card-text>
+                </v-card>
+              </v-dialog>
             </v-card-actions>
-            <v-card-title v-if="comment.user" class="py-0 black--text">
+            <v-card-title class="black--text pt-0">
               <v-avatar
                 class="mr-2"
               >
-                <v-img :src="comment.user.profile_picture" />
+                <v-img :src="comment.user ? comment.user.profile_picture : `${$axios.defaults.baseURL}/media/default_profile_picture.png`" />
               </v-avatar>
-              {{ comment.user.first_name !== '' && comment.user.last_name !== '' ? `${comment.user.first_name} ${comment.user.last_name}` : comment.user.username }}
+              {{ comment.user ? (comment.user.first_name !== '' && comment.user.last_name !== '' ? `${comment.user.first_name} ${comment.user.last_name}` : comment.user.username) : 'Anonymous' }}
             </v-card-title>
-
-            <v-card-title v-if="!comment.user" class="py-0 black--text">
-              <v-avatar
-                class="mr-2"
-              >
-                <v-img :src="`${$axios.defaults.baseURL}/media/default_profile_picture.png`" />
-              </v-avatar>
-              anonymous
-            </v-card-title>
+            <v-card-subtitle class="black--text py-0">
+              <small>{{ `Created: ${Object.keys(comment.history)[Object.keys(comment.history).length - 1]} Last modified: ${Object.keys(comment.history)[0]}` }}</small>
+            </v-card-subtitle>
             <v-card-text :id="`comment_${comment.id}`" class="pt-2 black--text">
               {{ comment.body }}
             </v-card-text>
             <v-card-text :id="`comment_editor_${comment.id}`" style="display: none;" class="pt-2 black--text">
-              <v-text-field v-model="editingComment" color="black" @keyup.enter="patchComment(comment.id)" />
+              <v-textarea
+                v-model="editingComment"
+                label="Comment"
+                counter="1000"
+                maxlength="1000"
+                color="black"
+                @keyup.enter="patchComment(comment.id)"
+              />
+              <v-text-field
+                v-model="editingReason"
+                label="Editing reason"
+                counter="100"
+                maxlength="100"
+                color="black"
+                @keyup.enter="patchComment(comment.id)"
+              />
             </v-card-text>
+            <v-card v-for="reply in allReplies.filter((object) => {return object.comment.id == comment.id})" :key="`reply_${reply.id}`" flat outlined class="ml-8 mr-4 mb-2">
+              <v-card-actions class="justify-end pb-0">
+                <v-btn v-if="($auth.$state.user && $auth.$state.user.is_superuser) || (reply.user && $auth.$state.user && reply.user.username === $auth.$state.user.username)" x-small text @click="activateReplyEditor(reply.id)">
+                  <v-icon small>
+                    mdi-pencil
+                  </v-icon>
+                </v-btn>
+                <v-btn v-if="($auth.$state.user && $auth.$state.user.is_superuser) || (comment.user && $auth.$state.user && comment.user.username === $auth.$state.user.username)" x-small text @click="deleteReply(reply.id)">
+                  <v-icon small>
+                    mdi-delete
+                  </v-icon>
+                </v-btn>
+                <v-dialog
+                  hide-overlay
+                  dark
+                  max-width="800"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      v-if="Object.keys(reply.history).length > 1"
+                      x-small
+                      text
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <v-icon small>
+                        mdi-history
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <v-card v-for="date in Object.keys(reply.history)" :key="date" class="pa-2">
+                    <v-card-title class="white--text">
+                      {{ date }}
+                    </v-card-title>
+                    <v-card-subtitle class="pb-2 white--text">
+                      Editing reason: {{ reply.history[date].reason }}
+                    </v-card-subtitle>
+                    <v-card-text class="white--text">
+                      {{ reply.history[date].body }}
+                    </v-card-text>
+                  </v-card>
+                </v-dialog>
+              </v-card-actions>
+              <v-card-title class="black--text pt-0">
+                <v-avatar
+                  class="mr-2"
+                >
+                  <v-img :src="reply.user ? reply.user.profile_picture : `${$axios.defaults.baseURL}/media/default_profile_picture.png`" />
+                </v-avatar>
+                {{ reply.user ? (reply.user.first_name !== '' && reply.user.last_name !== '' ? `${reply.user.first_name} ${reply.user.last_name}` : reply.user.username) : 'Anonymous' }}
+              </v-card-title>
+              <v-card-subtitle class="black--text py-0">
+                <small>{{ `Created: ${Object.keys(reply.history)[Object.keys(reply.history).length - 1]} Last modified: ${Object.keys(reply.history)[0]}` }}</small>
+              </v-card-subtitle>
+              <v-card-text :id="`reply_${reply.id}`" class="black--text">
+                {{ reply.body }}
+              </v-card-text>
+              <v-card-text :id="`reply_editor_${reply.id}`" style="display: none;" class="pt-2 black--text">
+                <v-textarea
+                  v-model="editingReply"
+                  label="Comment"
+                  counter="1000"
+                  maxlength="1000"
+                  color="black"
+                  @keyup.enter="patchReply(reply.id)"
+                />
+                <v-text-field
+                  v-model="editingReason"
+                  label="Editing reason"
+                  counter="100"
+                  maxlength="100"
+                  color="black"
+                  @keyup.enter="patchReply(reply.id)"
+                />
+              </v-card-text>
+            </v-card>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn x-small dark @click="activateCommentReplier(comment.id)">
+                reply
+              </v-btn>
+            </v-card-actions>
+            <v-container :id="`comment_replier_${comment.id}`" style="display: none;">
+              <v-card-text class="pt-2 black--text">
+                <v-textarea
+                  v-model="newReply"
+                  label="Reply"
+                  counter="1000"
+                  maxlength="1000"
+                  color="black"
+                />
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn dark @click="postReply(reply.id)">
+                  Reply
+                </v-btn>
+              </v-card-actions>
+            </v-container>
           </v-card>
           <v-card>
             <v-textarea
@@ -191,16 +340,16 @@ export default {
       const blogData = await $axios.get(`/blog/${blogId}/`)
       if (Object.keys(blogData.data.history).length > 1) {
         blogIsEdited = true
-        Object.keys(blogData.data.history).forEach((element) => {
-          blogHistorySelector.push(element)
-          blogHistory.push({
-            date: element,
-            content_en: blogData.data.history[element].en,
-            content_th: blogData.data.history[element].th,
-            reason: blogData.data.history[element].history_change_reason
-          })
-        })
       }
+      Object.keys(blogData.data.history).forEach((element) => {
+        blogHistorySelector.push(element)
+        blogHistory.push({
+          date: element,
+          content_en: blogData.data.history[element].en,
+          content_th: blogData.data.history[element].th,
+          reason: blogData.data.history[element].history_change_reason
+        })
+      })
       htmlBody = blogData.data.body.en
       htmlBodyTh = blogData.data.body.th
       blogTitle = blogData.data.title.en
@@ -215,9 +364,23 @@ export default {
       blogThumbnail = allImages.find(
         object => object.id === blogData.data.thumbnail
       ).image
-      const commentData = await $axios.get(`/comment/?blog=${filteredArticle.data[0].id}`)
-      const allComments = commentData.data
-      return { htmlBody, htmlBodyTh, blogId, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor, allComments }
+      const commentData = await $axios.get(`/comment/?blog=${blogId}`)
+      const allComments = []
+      const allReplies = []
+      if (commentData.data.length !== 0) {
+        commentData.data.forEach(async (comment) => {
+          const commentElement = await $axios.get(`/comment/${comment.id}/`)
+          allComments.push(commentElement.data)
+          const replyData = await $axios.get(`/reply/?comment=${comment.id}`)
+          if (replyData.data.length !== 0) {
+            replyData.data.forEach(async (reply) => {
+              const replyElement = await $axios.get(`/reply/${reply.id}/`)
+              allReplies.push(replyElement.data)
+            })
+          }
+        })
+      }
+      return { htmlBody, htmlBodyTh, blogId, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor, allComments, allReplies }
     } catch (error) {
       errorResponseAlert(error)
       throw new Error(error)
@@ -229,9 +392,12 @@ export default {
       selectedBlogDate: null,
       historyPopup: false,
       editingComment: '',
-      editingReason: '',
       currentComment: '',
-      newComment: ''
+      editingReply: '',
+      currentReply: '',
+      editingReason: '',
+      newComment: '',
+      newReply: ''
     }
   },
   computed: {
@@ -240,6 +406,7 @@ export default {
   },
   mounted () {
     this.resizeImage('blog__content')
+    this.refreshCommentAndReply()
   },
   updated () {
     this.resizeImage('blog__content')
@@ -257,26 +424,62 @@ export default {
         commentEditor.style.display = 'none'
       }
     },
+    activateCommentReplier (id) {
+      const commentReplier = document.getElementById(`comment_replier_${id}`)
+      if (commentReplier.style.display === '') {
+        commentReplier.style.display = 'none'
+      } else {
+        commentReplier.style.display = ''
+      }
+    },
+    activateReplyEditor (id) {
+      this.editingReply = this.allReplies.find(object => object.id === id).body.trim()
+      const replyElement = document.getElementById(`reply_${id}`)
+      const replyEditor = document.getElementById(`reply_editor_${id}`)
+      if (replyElement.style.display === '') {
+        replyElement.style.display = 'none'
+        replyEditor.style.display = ''
+      } else {
+        replyElement.style.display = ''
+        replyEditor.style.display = 'none'
+      }
+    },
+    async refreshCommentAndReply () {
+      this.allComments = []
+      this.allReplies = []
+      const commentData = await this.$axios.get(`/comment/?blog=${this.blogId}`)
+      if (commentData.data.length !== 0) {
+        commentData.data.forEach(async (comment) => {
+          const commentElement = await this.$axios.get(`/comment/${comment.id}/`)
+          this.allComments.push(commentElement.data)
+          const replyData = await this.$axios.get(`/reply/?comment=${comment.id}`)
+          if (replyData.data.length !== 0) {
+            replyData.data.forEach(async (reply) => {
+              const replyElement = await this.$axios.get(`/reply/${reply.id}/`)
+              this.allReplies.push(replyElement.data)
+            })
+          }
+        })
+      }
+    },
     async postComment () {
       if (!this.$auth.$state.loggedIn) {
         try {
           await this.$recaptcha.getResponse()
           await this.$recaptcha.reset()
         } catch (error) {
-          errorResponseAlert(error)
+          alert('reCAPTCHA failed.')
         }
       }
       const commentPost = {
         body: this.newComment,
         blog_id: this.blogId
       }
+
       try {
-        await this.$axios.post('/comment/', commentPost)
-        this.allComments.push({
-          id: this.allComments.length + 1,
-          body: this.newComment,
-          user: this.$auth.$state.loggedIn ? this.$auth.$state.user : null
-        })
+        const postRespone = await this.$axios.post('/comment/', commentPost)
+        const commentElement = await this.$axios.get(`/comment/${postRespone.data.id}/`)
+        this.allComments.push(commentElement.data)
         this.newComment = ''
       } catch (error) {
         errorResponseAlert(error)
@@ -287,30 +490,85 @@ export default {
       const commentElement = document.getElementById(`comment_${id}`)
       const commentEditor = document.getElementById(`comment_editor_${id}`)
       if (this.editingComment === this.currentComment) {
-        commentElement.style.display = ''
-        commentEditor.style.display = 'none'
-        return
-      }
-      const commentPatch = {
-        body: this.editingComment,
-        blog_id: this.blogId,
-        reason: this.editingReason !== '' ? this.editingReason : 'no reason'
-      }
-      try {
-        await this.$axios.patch(`/comment/${id}/`, commentPatch)
-        commentElement.innerHTML = this.editingComment
-        commentElement.style.display = ''
-        commentEditor.style.display = 'none'
-      } catch (error) {
-        errorResponseAlert(error)
-        commentElement.style.display = ''
-        commentEditor.style.display = 'none'
+        this.activateCommentEditior(id)
+      } else {
+        const commentPatch = {
+          body: this.editingComment,
+          reason: this.editingReason !== '' ? this.editingReason : 'no reason'
+        }
+        try {
+          await this.$axios.patch(`/comment/${id}/`, commentPatch)
+          commentElement.innerHTML = this.editingComment
+          commentElement.style.display = ''
+          commentEditor.style.display = 'none'
+          this.refreshCommentAndReply()
+        } catch (error) {
+          errorResponseAlert(error)
+          commentElement.style.display = ''
+          commentEditor.style.display = 'none'
+        }
       }
     },
     async deleteComment (id) {
       try {
         await this.$axios.delete(`/comment/${id}/`)
         this.allComments = this.allComments.filter((object) => { return object.id !== id })
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
+    async postReply (replyId) {
+      if (!this.$auth.$state.loggedIn) {
+        try {
+          await this.$recaptcha.getResponse()
+          await this.$recaptcha.reset()
+        } catch (error) {
+          alert('reCAPTCHA failed.')
+        }
+      }
+      const replyPost = {
+        body: this.newReply,
+        comment_id: replyId
+      }
+
+      try {
+        const postRespone = await this.$axios.post('/reply/', replyPost)
+        const replyElement = await this.$axios.get(`/reply/${postRespone.data.id}/`)
+        this.allReplies.push(replyElement.data)
+        this.newReply = ''
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
+    async patchReply (id) {
+      this.currentReply = this.allReplies.find(object => object.id === id).body.trim()
+      const replyElement = document.getElementById(`reply_${id}`)
+      const replyEditor = document.getElementById(`reply_editor_${id}`)
+      if (this.editingReply === this.currentReply) {
+        replyElement.style.display = ''
+        replyEditor.style.display = 'none'
+        this.refreshCommentAndReply()
+      } else {
+        const replyPatch = {
+          body: this.editingReply,
+          reason: this.editingReason !== '' ? this.editingReason : 'no reason'
+        }
+        try {
+          await this.$axios.patch(`/reply/${id}/`, replyPatch)
+          replyElement.style.display = ''
+          replyEditor.style.display = 'none'
+          this.refreshCommentAndReply()
+        } catch (error) {
+          errorResponseAlert(error)
+          replyElement.style.display = ''
+          replyEditor.style.display = 'none'
+        }
+      }
+    },
+    async deleteReply (id) {
+      try {
+        await this.$axios.delete(`/reply/${id}/`)
+        this.allReplies = this.allReplies.filter((object) => { return object.id !== id })
       } catch (error) {
         errorResponseAlert(error)
       }

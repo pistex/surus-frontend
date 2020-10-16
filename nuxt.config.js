@@ -37,7 +37,7 @@ export default {
   recaptcha: {
     siteKey: '6LcawdcZAAAAAD4XM1fQFRlXj5xj4oAY8cBmC9xa',
     size: 'invisible',
-    hideBadge: false,
+    hideBadge: true,
     version: 2
   },
 
