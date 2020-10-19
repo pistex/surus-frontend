@@ -2,7 +2,9 @@ export default function errorResponseAlert (error) {
   if (process.client) {
     if (error.response) {
       const responseStatus = error.response.status
-      if (responseStatus === 400) {
+      if (error.response.data.detail) {
+        alert(error.response.data.detail)
+      } else if (responseStatus === 400) {
         alert('Invalid data is sent to server. Please try agian.')
       } else if (responseStatus === 401) {
         alert('Authorization failed. The authenticated user is not allowed to perform this action or the request is made by anonymous user.')

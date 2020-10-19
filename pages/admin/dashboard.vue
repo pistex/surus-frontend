@@ -3,7 +3,41 @@
     <v-container id="admin_panel_dashboard">
       <adminNavbar />
       <v-container v-if="this.$auth.$state.user && this.$auth.$state.user.is_superuser">
-        dashboarddashboarddashboarddashboarddashboarddashboarddashboarddashboarddashboarddashboarddashboarddashboarddashboarddashboard
+        <v-row no-gutters>
+          <v-col cols="4" class="debug_border">
+            <v-row justify="center" no-gutters>
+              <v-col cols="10">
+                <v-row>
+                  <v-col cols="12" class="text-button black white--text">
+                    Featured article
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-col>
+          <v-col cols="4" class="debug_border">
+            <v-row justify="center" no-gutters>
+              <v-col cols="10">
+                <v-row>
+                  <v-col cols="12" class="text-button black white--text">
+                    Newest user
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-col>
+          <v-col cols="4" class="debug_border">
+            <v-row justify="center" no-gutters>
+              <v-col cols="10">
+                <v-row>
+                  <v-col cols="12" class="text-button black white--text">
+                    Reported issue
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
       </v-container>
     </v-container>
   </client-only>
@@ -52,24 +86,7 @@ export default {
 </script>
 
 <style scoped>
-table,
-th,
-td {
-  border: 1px solid black;
-}
-th {
-  background: hotpink;
-}
-.userEntry {
-  background: gray;
-}
-.userEntry:hover {
-  background: blueviolet;
-}
-.groupEntry {
-  background: gray;
-}
-.groupEntry:hover {
-  background: blueviolet;
+.debug_border {
+  border: black 1px solid;
 }
 </style>
