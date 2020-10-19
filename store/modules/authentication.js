@@ -1,5 +1,4 @@
 import errorResponseAlert from '@/helpers/axios-request-error'
-
 export const authenticationStore = {
   namespaced: true,
   state: { authenticationStatus: 'No user logged in.' },
@@ -30,8 +29,6 @@ export const authenticationStore = {
       } catch (error) {
         errorResponseAlert(error)
         commit('loginFailure', error)
-        // We don't want any redirection here.
-        // throw new Error(error)
       }
     },
     async postLogout ({ commit }) {
@@ -41,7 +38,6 @@ export const authenticationStore = {
         commit('logoutSuccess')
       } catch (error) {
         errorResponseAlert(error)
-        throw new Error(error)
       }
     }
   },

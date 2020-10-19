@@ -1,6 +1,6 @@
 <template>
   <v-app dark>
-    <Navbar />
+    <Navbar v-if="disableAdminPanel()" />
     <v-main class="pt-4 pb-8">
       <nuxt />
     </v-main>
@@ -8,10 +8,15 @@
 </template>
 
 <script>
-import Navbar from '@/components/Navbar'
+import Navbar from '@/components/navbar'
 export default {
   components: {
     Navbar
+  },
+  methods: {
+    disableAdminPanel () {
+      return !this.$route.path.startsWith('/admin')
+    }
   }
 }
 </script>
@@ -45,6 +50,7 @@ export default {
   margin: 0;
 }
 .editor__content img, .blog__content img{
+  width: 100%;
   display: block;
   margin-left: auto;
   margin-right: auto;

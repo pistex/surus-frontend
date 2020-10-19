@@ -66,9 +66,9 @@
                 {{ blogTitle }}
               </v-card-title>
               <v-card-subtitle class="white--text">
-                <v-icon>mdi-account</v-icon> Creator : {{ blogAuthor.first_name !== '' && blogAuthor.last_name !== '' ? `${blogAuthor.first_name} ${blogAuthor.last_name}` : blogAuthor.username }} <v-icon>mdi-calendar</v-icon> Created: {{ blogHistorySelector[0] }} <v-icon v-if="blogIsEdited">
+                <v-icon>mdi-account</v-icon> Creator : {{ blogAuthor.first_name !== '' && blogAuthor.last_name !== '' ? `${blogAuthor.first_name} ${blogAuthor.last_name}` : blogAuthor.username }} <v-icon>mdi-calendar</v-icon> Created: {{ blogHistorySelector[blogHistorySelector.length -1] }} <v-icon v-if="blogIsEdited">
                   mdi-calendar-edit
-                </v-icon> {{ blogIsEdited ? `Last modified: ${blogHistorySelector[blogHistorySelector.length -1]}` : '' }}
+                </v-icon> {{ blogIsEdited ? `Last modified: ${blogHistorySelector[0]}` : '' }}
               </v-card-subtitle>
             </v-img>
             <v-card-text
@@ -106,7 +106,7 @@
           </v-card>
         </v-sheet>
       </v-col>
-      <v-col cols="6">
+      <v-col :cols="$vuetify.breakpoint.smAndDown ? 10: 6">
         <v-container class="text-button black white--text">
           Comment
         </v-container>
@@ -163,7 +163,7 @@
               {{ comment.user ? (comment.user.first_name !== '' && comment.user.last_name !== '' ? `${comment.user.first_name} ${comment.user.last_name}` : comment.user.username) : 'Anonymous' }}
             </v-card-title>
             <v-card-subtitle class="black--text py-0">
-              <small>{{ `Created: ${Object.keys(comment.history)[Object.keys(comment.history).length - 1]} Last modified: ${Object.keys(comment.history)[0]}` }}</small>
+              <small>{{ `Created: ${Object.keys(comment.history)[0]} Last modified: ${Object.keys(comment.history)[Object.keys(comment.history).length - 1]}` }}</small>
             </v-card-subtitle>
             <v-card-text :id="`comment_${comment.id}`" class="pt-2 black--text">
               {{ comment.body }}
@@ -238,7 +238,7 @@
                 {{ reply.user ? (reply.user.first_name !== '' && reply.user.last_name !== '' ? `${reply.user.first_name} ${reply.user.last_name}` : reply.user.username) : 'Anonymous' }}
               </v-card-title>
               <v-card-subtitle class="black--text py-0">
-                <small>{{ `Created: ${Object.keys(reply.history)[Object.keys(reply.history).length - 1]} Last modified: ${Object.keys(reply.history)[0]}` }}</small>
+                <small>{{ `Created: ${Object.keys(reply.history)[0]} Last modified: ${Object.keys(reply.history)[Object.keys(reply.history).length - 1]}` }}</small>
               </v-card-subtitle>
               <v-card-text :id="`reply_${reply.id}`" class="black--text">
                 {{ reply.body }}
@@ -304,7 +304,7 @@
           </v-card>
         </v-container>
       </v-col>
-      <v-col cols="4">
+      <v-col :cols="$vuetify.breakpoint.smAndDown ? 10: 4">
         <v-container
           class="text-button white--text indigo darken-4"
         >
@@ -405,11 +405,11 @@ export default {
   created () {
   },
   mounted () {
-    this.resizeImage('blog__content')
+    // this.resizeImage('blog__content')
     this.refreshCommentAndReply()
   },
   updated () {
-    this.resizeImage('blog__content')
+    // this.resizeImage('blog__content')
   },
   methods: {
     activateCommentEditior (id) {
@@ -581,7 +581,6 @@ export default {
         const images = d.querySelectorAll('img')
         Array.from(images).forEach((element) => {
           element.width = 600
-          element.class = 'center_image'
         })
       })
     },

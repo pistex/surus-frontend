@@ -1,6 +1,6 @@
 <template>
   <client-only>
-    <v-container id="blog_create" class="py-0">
+    <v-container id="blog_edit" class="py-0">
       <v-container class="editor">
         <v-row justify="center" no-gutters>
           <v-col cols="10" align="end" class="py-2">

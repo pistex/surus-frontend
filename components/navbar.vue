@@ -25,7 +25,7 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item v-for="menu in menuItems" :key="menu.title" link>
+          <v-list-item v-for="menu in menuItems" :key="menu.title" link :to="menu.path">
             <v-list-item-icon>
               <v-icon>{{ menu.icon }}</v-icon>
             </v-list-item-icon>

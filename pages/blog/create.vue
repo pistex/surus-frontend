@@ -492,6 +492,7 @@ import {
   Image
 } from '@/plugins/tiptap-extensions.js'
 import { hljs, python } from '@/plugins/highlight.js'
+import errorResponseAlert from '@/helpers/axios-request-error'
 export default {
   components: {
     EditorContent,
@@ -678,7 +679,7 @@ export default {
         this.allImages = response.data
         this.allImagesReversedOrder = [...response.data].reverse()
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     },
     async postBlog () {
@@ -706,7 +707,7 @@ export default {
           const image = await this.$axios.post('/image/', formData)
           postData.thumbnail = image.data.id
         } catch (error) {
-          throw new Error(error)
+          errorResponseAlert(error)
         }
       }
       try {
@@ -717,7 +718,7 @@ export default {
         this.refreshEditor()
         this.$router.push('/blog')
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     },
     async postImage () {
@@ -728,7 +729,7 @@ export default {
         await this.getImages()
         this.uploadedImage = null
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     },
     async deleteImage (id) {
@@ -736,7 +737,7 @@ export default {
         await this.$axios.delete(`image/${id}/`)
         await this.getImages()
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     },
     copyImageUrl (message, id) {
@@ -746,7 +747,7 @@ export default {
           .childNodes[0]
         copyButton.innerHTML = 'Copied!'
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     },
     changeCopyButton (id) {

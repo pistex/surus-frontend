@@ -1,7 +1,5 @@
 <template>
   <v-container id="blog">
-    <!-- check if a user is logged in first by $auth.$state.loggedIn to prevent an error
-    for $auth.$state.user === null -->
     <v-row v-if="$auth.$state.loggedIn && $auth.$state.user.groups.includes('Creator')" justify="center">
       <v-col cols="10" class="pb-2 px-0" align="start">
         <v-btn dark to="/blog/create">
@@ -11,16 +9,16 @@
     </v-row>
     <v-row v-for="blog in allBlogs" :key="blog.id" justify="center">
       <v-col cols="10" class="grey darken-4">
-        <v-card :to="blog.slug">
+        <v-card>
           <v-img
             :src="allImages.find((object) => object.id == blog.thumbnail).image"
             max-height="200px"
           />
           <v-card-title>
-            {{ blog.title.en }}
+            <a :href="`/blog/${blog.slug}`">{{ blog.title.en }}</a>
           </v-card-title>
           <v-card-subtitle>
-            <v-chip v-for="tag in blog.tag" :key="tag.en" x-small>
+            <v-chip v-for="tag in blog.tag" :key="tag.en" x-small :to='`/blog/tag/${tag.text}`'>
               {{ tag.text }}
             </v-chip>
           </v-card-subtitle>
@@ -43,11 +41,9 @@ import { mapGetters } from 'vuex'
 export default {
   async asyncData ({ store }) {
     await store.dispatch('blogStore/getBlogs')
-    await store.dispatch('blogStore/getTags')
     await store.dispatch('blogStore/getImages')
     const allBlogs = await store.getters['blogStore/allBlogs']
-    const allTags = await store.getters['blogStore/allTags']
-    return { allBlogs, allTags }
+    return { allBlogs }
   },
   data () {
     return {
@@ -74,6 +70,9 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style>
+.v-card__title a{
+  color: black;
+  text-decoration: none;
+}
 </style>

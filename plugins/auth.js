@@ -1,6 +1,6 @@
 import jwtDecode from 'jwt-decode'
 const strategy = 'local'
-const FALLBACK_INTERVAL = 4 * 60 * 1000 * 0.75
+const FALLBACK_INTERVAL = 4 * 60 * 1000 * 0.8
 async function tokenRefresher ($auth, $router, $axios, accessToken, refreshToken) {
   if (accessToken && refreshToken) {
     try {
@@ -14,7 +14,9 @@ async function tokenRefresher ($auth, $router, $axios, accessToken, refreshToken
       return decodedToken.exp
     } catch (error) {
       $auth.logout()
-      alert('Authentication token is expired. The user has been automatically logged out.')
+      if (process.client) {
+        alert('Authentication token is expired. The user has been automatically logged out.')
+      }
       $router.push('/')
       throw new Error(error)
     }
@@ -32,7 +34,7 @@ export default async function ({ app }) {
 
   if (accessToken && refreshToken) {
     const decodedToken = jwtDecode(accessToken)
-    refreshInterval = (decodedToken.exp * 1000 - Date.now()) * 0.75
+    refreshInterval = (decodedToken.exp * 1000 - Date.now()) * 0.8
 
     if (refreshInterval < 10000 && refreshInterval > 0) {
       // minimum refresh interval: 10 seconds.
@@ -40,7 +42,7 @@ export default async function ({ app }) {
     }
     if (refreshInterval < 0) {
       // this means the access token is expired.
-      refreshInterval = (await tokenRefresher($auth, $router, $axios, accessToken, refreshToken) * 1000 - Date.now()) * 0.75
+      refreshInterval = (await tokenRefresher($auth, $router, $axios, accessToken, refreshToken) * 1000 - Date.now()) * 0.8
     }
   }
 

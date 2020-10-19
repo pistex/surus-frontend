@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { authenticationStore } from './modules/authentication'
 import { blogStore } from './modules/blog'
+import { adminPanel } from './modules/admin'
 
 Vue.use(Vuex)
 
@@ -15,7 +16,8 @@ const vuex = new Vuex.Store({
   },
   modules: {
     authenticationStore,
-    blogStore
+    blogStore,
+    adminPanel
   }
 })
 

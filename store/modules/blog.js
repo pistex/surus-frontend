@@ -1,4 +1,4 @@
-// no authentication needed for retrive blogs and tags
+import errorResponseAlert from '@/helpers/axios-request-error'
 export const blogStore = {
   namespaced: true,
   state: {
@@ -23,7 +23,7 @@ export const blogStore = {
         const allBlogs = await this.$axios.get('/blog/')
         commit('setBlogs', allBlogs.data.reverse())
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     },
     async getTags ({ commit }) {
@@ -31,7 +31,7 @@ export const blogStore = {
         const allTags = await this.$axios.get('/tag/')
         commit('setTags', allTags.data)
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     },
     async getImages ({ commit }) {
@@ -39,7 +39,7 @@ export const blogStore = {
         const Images = await this.$axios.get('/image/')
         commit('setImages', Images.data)
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     }
   },
