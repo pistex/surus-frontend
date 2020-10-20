@@ -115,4 +115,7 @@ pre {
     }
   }
 }
+.debug_border {
+  border: black 1px solid;
+}
 </style>

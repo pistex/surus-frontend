@@ -18,7 +18,7 @@ export const blogStore = {
     }
   },
   actions: {
-    async getBlogs ({ commit }) {
+    async getAllBlogs ({ commit }) {
       try {
         const allBlogs = await this.$axios.get('/blog/')
         commit('setBlogs', allBlogs.data.reverse())

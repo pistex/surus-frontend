@@ -7,7 +7,7 @@
         </v-btn>
       </v-col>
     </v-row>
-    <v-row v-for="blog in allBlogs" :key="blog.id" justify="center">
+    <v-row v-for="blog in allBlogs.filter((element, index) => {return index+1 >= 1+((page-1)*8) && index+1 <= page*8})" :key="blog.id" justify="center">
       <v-col cols="10" class="grey darken-4">
         <v-card>
           <v-img
@@ -18,7 +18,7 @@
             <a :href="`/blog/${blog.slug}`">{{ blog.title.en }}</a>
           </v-card-title>
           <v-card-subtitle>
-            <v-chip v-for="tag in blog.tag" :key="tag.en" x-small :to='`/blog/tag/${tag.text}`'>
+            <v-chip v-for="tag in blog.tag" :key="tag.en" x-small :to="`/blog/tag/${tag.text}`">
               {{ tag.text }}
             </v-chip>
           </v-card-subtitle>
@@ -33,6 +33,21 @@
         </v-card>
       </v-col>
     </v-row>
+    <v-container>
+      <v-row justify="center">
+        <v-col cols="8">
+          <v-container class="max-width">
+            <v-pagination
+              v-model="page"
+              dark
+              color="black"
+              class="my-4"
+              :length="Math.ceil(allBlogs.length / 8)"
+            />
+          </v-container>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-container>
 </template>
 
@@ -40,13 +55,14 @@
 import { mapGetters } from 'vuex'
 export default {
   async asyncData ({ store }) {
-    await store.dispatch('blogStore/getBlogs')
+    await store.dispatch('blogStore/getAllBlogs')
     await store.dispatch('blogStore/getImages')
     const allBlogs = await store.getters['blogStore/allBlogs']
     return { allBlogs }
   },
   data () {
     return {
+      page: 1
     }
   },
   computed: {

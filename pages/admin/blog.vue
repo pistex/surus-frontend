@@ -106,7 +106,7 @@ export default {
   },
   async created () {
     await this.getImages()
-    await this.getBlogs()
+    await this.getAllBlogs()
     // if (process.client) {
     await this.allBlogs.forEach(async (blog) => {
       const response = await this.$axios.get(`/blog/${blog.id}/`)
@@ -115,7 +115,7 @@ export default {
     // }
   },
   methods: {
-    ...mapActions('blogStore', ['getBlogs', 'getImages']),
+    ...mapActions('blogStore', ['getAllBlogs', 'getImages']),
     filterBlogHistory (id) {
       if (this.blogHistory.filter((object) => { return object.id === id }).length > 0) {
         return Object.keys(this.blogHistory.filter((object) => { return object.id === id })[0])
@@ -126,7 +126,7 @@ export default {
     async deleteBlog (id) {
       try {
         await this.$axios.delete(`/blog/${id}/`)
-        this.getBlogs()
+        this.getAllBlogs()
       } catch (error) {
         throw new Error(error)
       }

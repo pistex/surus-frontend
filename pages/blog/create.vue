@@ -715,6 +715,8 @@ export default {
         this.blogisPosted = true
         await localStorage.removeItem('updatedContent')
         await localStorage.removeItem('updatedContentTh')
+        this.blogTitle = ''
+        this.blogTitleTh = ''
         this.refreshEditor()
         this.$router.push('/blog')
       } catch (error) {
