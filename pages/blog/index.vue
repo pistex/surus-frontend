@@ -18,7 +18,7 @@
             <a :href="`/blog/${blog.slug}`">{{ blog.title.en }}</a>
           </v-card-title>
           <v-card-subtitle>
-            <v-chip v-for="tag in blog.tag" :key="tag.en" x-small :to="`/blog/tag/${tag.text}`">
+            <v-chip v-for="tag in blog.tag" :key="tag.text" x-small :to="`/blog/tag/${tag.text}`">
               {{ tag.text }}
             </v-chip>
           </v-card-subtitle>

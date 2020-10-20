@@ -1,8 +1,8 @@
 <template>
   <v-container id="navbar">
     <v-app-bar app dark>
-      <v-toolbar-title class="mr-6">
-        VUETIFY SANDBOX
+      <v-toolbar-title class="mr-6 font-weight-light">
+        S U R U S
       </v-toolbar-title>
       <v-toolbar-items
         v-for="menu in menuItems"

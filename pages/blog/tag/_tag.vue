@@ -1,10 +1,13 @@
 <template>
   <v-container v-if="allBlogs.filter(blog => {return blog.tag.map(tag => tag.text).includes($route.params.tag)}).length > 0" :id="`blog_tag_${$route.params.tag}`">
-    <v-row v-if="$auth.$state.loggedIn && $auth.$state.user.groups.includes('Creator')" justify="center">
-      <v-col cols="10" class="pb-2 px-0" align="start">
+    <v-row justify="center">
+      <v-col v-if="$auth.$state.loggedIn && $auth.$state.user.groups.includes('Creator')" cols="10" class="pb-2 px-0" align="start">
         <v-btn dark to="/blog/create">
           Create
         </v-btn>
+      </v-col>
+      <v-col cols="10" class="pb-4 px-0" align="start">
+        <span class="text-h2" v-text="$route.params.tag" />
       </v-col>
     </v-row>
     <v-row v-for="blog in allBlogs.filter(blog => {return blog.tag.map(tag => tag.text).includes($route.params.tag)}).filter((blog, index) => {return index+1 >= 1+((page-1)*8) && index+1 <= page*8})" :key="blog.id" justify="center">

@@ -62,13 +62,18 @@
               gradient="to top right, rgba(0,0,0,.8), rgba(0,0,0,1)"
               class="align-end"
             >
-              <v-card-title class="text-h4">
+              <v-card-title class="headline">
                 {{ blogTitle }}
               </v-card-title>
-              <v-card-subtitle class="white--text">
+              <v-card-subtitle class="white--text pb-0">
                 <v-icon>mdi-account</v-icon> Creator : {{ blogAuthor.first_name !== '' && blogAuthor.last_name !== '' ? `${blogAuthor.first_name} ${blogAuthor.last_name}` : blogAuthor.username }} <v-icon>mdi-calendar</v-icon> Created: {{ blogHistorySelector[blogHistorySelector.length -1] }} <v-icon v-if="blogIsEdited">
                   mdi-calendar-edit
                 </v-icon> {{ blogIsEdited ? `Last modified: ${blogHistorySelector[0]}` : '' }}
+              </v-card-subtitle>
+              <v-card-subtitle class="pt-0 pb-2">
+                <v-chip v-for="tag in blogTag" :key="tag.text" x-small :to="`/blog/tag/${tag.text}`">
+                  {{ tag.text }}
+                </v-chip>
               </v-card-subtitle>
             </v-img>
             <v-card-text
@@ -92,10 +97,15 @@
               <v-card-title class="text-h4">
                 {{ blogTitleTh }}
               </v-card-title>
-              <v-card-subtitle class="white--text">
+              <v-card-subtitle class="white--text pb-0">
                 <v-icon>mdi-account</v-icon> ผู้เขียน : {{ blogAuthor.first_name !== '' && blogAuthor.last_name !== '' ? `${blogAuthor.first_name} ${blogAuthor.last_name}` : blogAuthor.username }} <v-icon>mdi-calendar</v-icon> วันที่สร้าง: {{ blogHistorySelector[0] }} <v-icon v-if="blogIsEdited">
                   mdi-calendar-edit
                 </v-icon> {{ blogIsEdited ? `แก้ไขล่าสุด: ${blogHistorySelector[blogHistorySelector.length -1]}` : '' }}
+              </v-card-subtitle>
+              <v-card-subtitle class="pt-0 pb-2">
+                <v-chip v-for="tag in blogTag" :key="tag.text" x-small :to="`/blog/tag/${tag.text}`">
+                  {{ tag.text }}
+                </v-chip>
               </v-card-subtitle>
             </v-img>
             <v-card-text
@@ -240,6 +250,7 @@
               <v-card-subtitle class="black--text py-0">
                 <small>{{ `Created: ${Object.keys(reply.history)[0]} Last modified: ${Object.keys(reply.history)[Object.keys(reply.history).length - 1]}` }}</small>
               </v-card-subtitle>
+
               <v-card-text :id="`reply_${reply.id}`" class="black--text">
                 {{ reply.body }}
               </v-card-text>
@@ -325,6 +336,7 @@ export default {
     let htmlBodyTh = ''
     let blogTitleTh = ''
     let blogThumbnail = ''
+    let blogTag = []
     let blogAuthor = {
       username: '',
       first_name: '',
@@ -354,6 +366,7 @@ export default {
       htmlBodyTh = blogData.data.body.th
       blogTitle = blogData.data.title.en
       blogTitleTh = blogData.data.title.th
+      blogTag = blogData.data.tag
       blogAuthor = {
         username: blogData.data.author.username,
         first_name: blogData.data.author.first_name,
@@ -380,7 +393,7 @@ export default {
           }
         })
       }
-      return { htmlBody, htmlBodyTh, blogId, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor, allComments, allReplies }
+      return { htmlBody, htmlBodyTh, blogId, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor, allComments, allReplies, blogTag }
     } catch (error) {
       errorResponseAlert(error)
       throw new Error(error)
