@@ -92,7 +92,7 @@ export const authenticationStore = {
       state.authenticationStatus = 'Tokens are set.'
     },
     setHeader (state, token) {
-      this.$axios.setToken(token.access, 'Bearer')
+      this.$axios.setHeader('backend-authorization', `Bearer ${token.access}`)
       state.authenticationStatus = 'Axios header is set.'
     },
     loginSuccess (state, userData) {

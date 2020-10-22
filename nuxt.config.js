@@ -60,7 +60,7 @@ export default async function () {
     },
 
     axios: {
-      baseURL: await accessSecret('projects/808537418853/secrets/API_BASE_URL/versions/1')
+      baseURL: 'http://127.0.0.1:8000' // await accessSecret('projects/808537418853/secrets/API_BASE_URL/versions/1')
     },
 
     build: {
@@ -74,7 +74,8 @@ export default async function () {
             login: { url: '/authentication/login/', method: 'post', propertyName: false },
             logout: { url: '/authentication/logout/', method: 'post', propertyName: false },
             user: { url: '/user_profile/', method: 'get', propertyName: false }
-          }
+          },
+          tokenName: 'backend-authorization'
         }
       },
       plugins: [{ src: '@/plugins/auth.js', mode: 'client' }]

@@ -525,10 +525,10 @@ export default {
       }
     },
     async postComment () {
+      let recaptchaToken = ''
       if (!this.$auth.$state.loggedIn) {
         try {
-          await this.$recaptcha.getResponse()
-          await this.$recaptcha.reset()
+          recaptchaToken = await this.$recaptcha.getResponse()
         } catch (error) {
           alert('reCAPTCHA failed.')
           return
@@ -536,7 +536,8 @@ export default {
       }
       const commentPost = {
         body: this.newComment,
-        blog_id: this.blogId
+        blog_id: this.blogId,
+        recaptcha: recaptchaToken !== '' ? recaptchaToken : null
       }
 
       try {
@@ -547,6 +548,7 @@ export default {
       } catch (error) {
         errorResponseAlert(error)
       }
+      await this.$recaptcha.reset()
     },
     async patchComment (id) {
       this.currentComment = this.allComments.find(object => object.id === id).body.trim()
@@ -581,10 +583,10 @@ export default {
       }
     },
     async postReply (commentId) {
+      let recaptchaToken = ''
       if (!this.$auth.$state.loggedIn) {
         try {
-          await this.$recaptcha.getResponse()
-          await this.$recaptcha.reset()
+          recaptchaToken = await this.$recaptcha.getResponse()
         } catch (error) {
           alert('reCAPTCHA failed.')
           return
@@ -592,7 +594,8 @@ export default {
       }
       const replyPost = {
         body: this.newReply,
-        comment_id: commentId
+        comment_id: commentId,
+        recaptcha: recaptchaToken !== '' ? recaptchaToken : null
       }
 
       try {
@@ -603,6 +606,7 @@ export default {
       } catch (error) {
         errorResponseAlert(error)
       }
+      await this.$recaptcha.reset()
     },
     async patchReply (id) {
       this.currentReply = this.allReplies.find(object => object.id === id).body.trim()
