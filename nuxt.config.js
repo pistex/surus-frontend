@@ -11,6 +11,9 @@ async function accessSecret (name) {
 
 export default async function () {
   return {
+    env: {
+      CLOUD_STORAGE_ROOT: await accessSecret('projects/808537418853/secrets/CLOUD_STORAGE_ROOT/versions/1')
+    },
     head: {
       titleTemplate: '%s - surus-frontend',
       title: 'surus-frontend',
@@ -60,7 +63,7 @@ export default async function () {
     },
 
     axios: {
-      baseURL: 'http://127.0.0.1:8000' // await accessSecret('projects/808537418853/secrets/API_BASE_URL/versions/1')
+      baseURL: await accessSecret('projects/808537418853/secrets/API_BASE_URL/versions/1')
     },
 
     build: {

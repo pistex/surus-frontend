@@ -617,9 +617,6 @@ export default {
     this.getTags()
     this.getThisBlog()
   },
-  updated () {
-    this.refreshEditor()
-  },
   methods: {
     ...mapActions('blogStore', ['getTags']),
     async getThisBlog () {
@@ -645,16 +642,6 @@ export default {
       const ProseMirror = document.getElementsByClassName('ProseMirror')[0]
       ProseMirror.style.outline = 'none'
     },
-    async resizeImage (classname) {
-      await this.$store.dispatch('sleep', 400)
-      const d = Array.from(document.getElementsByClassName(classname))
-      d.forEach((d) => {
-        const images = d.querySelectorAll('img')
-        Array.from(images).forEach((element) => {
-          element.width = 600
-        })
-      })
-    },
     setContent () {
       this.editor.setContent(this.rawHtml)
       this.editorTh.setContent(this.rawHtmlTh)
@@ -679,7 +666,6 @@ export default {
       if (this.imageUrl !== null) {
         command({ src: this.imageUrl })
         this.imageMenu = false
-        this.resizeImage('editor__content')
       }
     },
     async getImages () {
@@ -773,8 +759,6 @@ export default {
     },
     async refreshEditor () {
       await this.setContent()
-      await this.resizeImage('editor__content')
-      await this.resizeImage('blog__content')
       await this.removeProseMirrorOutline()
       await this.updateHighlight()
     }

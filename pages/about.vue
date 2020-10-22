@@ -70,7 +70,8 @@ export default {
       issueTitle: '',
       issueBody: '',
       issueCategory: '',
-      issueCategorySeletor: ['Code', 'System', 'Typo', 'Etc']
+      issueCategorySeletor: ['Code', 'System', 'Typo', 'Etc'],
+      reporterEmail: ''
     }
   },
   methods: {
@@ -83,20 +84,21 @@ export default {
         alert('Please provide your issue detail.')
         return
       }
+      let recaptchaToken = ''
+      if (!this.$auth.$state.loggedIn) {
+        try {
+          recaptchaToken = await this.$recaptcha.getResponse()
+        } catch (error) {
+          alert('reCAPTCHA failed.')
+          return
+        }
+      }
       const issuePost = {
         title: this.issueTitle,
         blog_id: this.blogId,
         body: this.reporterEmail === '' ? this.issueBody : `${this.issueBody} Contact: ${this.reporterEmail}`,
-        category: this.issueCategory.toUpperCase()
-      }
-      if (!this.$auth.$state.loggedIn) {
-        try {
-          await this.$recaptcha.getResponse()
-          await this.$recaptcha.reset()
-          this.issueReporterPopup = false
-        } catch (error) {
-          alert('reCAPTCHA failed.')
-        }
+        category: this.issueCategory.toUpperCase(),
+        recaptcha: recaptchaToken
       }
       try {
         const postRespone = await this.$axios.post('/issue/', issuePost)

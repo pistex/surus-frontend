@@ -211,7 +211,7 @@
               <v-avatar
                 class="mr-2"
               >
-                <v-img :src="comment.user ? comment.user.profile_picture : `${$axios.defaults.baseURL}/media/default_profile_picture.png`" />
+                <v-img :src="comment.user ? comment.user.profile_picture : `${cloudStorageRoot}/file/default_profile_picture.png`" />
               </v-avatar>
               {{ comment.user ? (comment.user.first_name !== '' && comment.user.last_name !== '' ? `${comment.user.first_name} ${comment.user.last_name}` : comment.user.username) : 'Anonymous' }}
             </v-card-title>
@@ -286,7 +286,7 @@
                 <v-avatar
                   class="mr-2"
                 >
-                  <v-img :src="reply.user ? reply.user.profile_picture : `${$axios.defaults.baseURL}/media/default_profile_picture.png`" />
+                  <v-img :src="reply.user ? reply.user.profile_picture : `${cloudStorageRoot}/file/default_profile_picture.png`" />
                 </v-avatar>
                 {{ reply.user ? (reply.user.first_name !== '' && reply.user.last_name !== '' ? `${reply.user.first_name} ${reply.user.last_name}` : reply.user.username) : 'Anonymous' }}
               </v-card-title>
@@ -444,6 +444,7 @@ export default {
   },
   data () {
     return {
+      cloudStorageRoot: '',
       isPrimaryLanguge: true,
       selectedBlogDate: null,
       historyPopup: false,
@@ -465,13 +466,10 @@ export default {
   computed: {
   },
   created () {
+    this.cloudStorageRoot = process.env.CLOUD_STORAGE_ROOT
   },
   mounted () {
-    // this.resizeImage('blog__content')
     this.refreshCommentAndReply()
-  },
-  updated () {
-    // this.resizeImage('blog__content')
   },
   methods: {
     activateCommentEditior (id) {
@@ -641,15 +639,6 @@ export default {
         errorResponseAlert(error)
       }
     },
-    resizeImage (classname) {
-      const d = Array.from(document.getElementsByClassName(classname))
-      d.forEach((d) => {
-        const images = d.querySelectorAll('img')
-        Array.from(images).forEach((element) => {
-          element.width = 600
-        })
-      })
-    },
     changeVerison () {
       document.getElementById('content_en').innerHTML = this.blogHistory.find(
         object => object.date === this.selectedBlogDate
@@ -659,7 +648,6 @@ export default {
       ).content_th
       document.getElementById('history_button').innerHTML =
         'Blog version: ' + this.selectedBlogDate
-      this.resizeImage('blog__content')
     },
     async postIssue () {
       if (!this.$auth.$state.loggedIn && this.reporterEmail === '') {
@@ -670,20 +658,21 @@ export default {
         alert('Please provide your issue detail.')
         return
       }
+      let recaptchaToken = ''
+      if (!this.$auth.$state.loggedIn) {
+        try {
+          recaptchaToken = await this.$recaptcha.getResponse()
+        } catch (error) {
+          alert('reCAPTCHA failed.')
+          return
+        }
+      }
       const issuePost = {
         title: this.issueTitle,
         blog_id: this.blogId,
         body: this.reporterEmail === '' ? this.issueBody : `${this.issueBody} Contact: ${this.reporterEmail}`,
-        category: this.issueCategory.toUpperCase()
-      }
-      if (!this.$auth.$state.loggedIn) {
-        try {
-          await this.$recaptcha.getResponse()
-          await this.$recaptcha.reset()
-          this.issueReporterPopup = false
-        } catch (error) {
-          alert('reCAPTCHA failed.')
-        }
+        category: this.issueCategory.toUpperCase(),
+        recaptcha: recaptchaToken
       }
       try {
         const postRespone = await this.$axios.post('/issue/', issuePost)
