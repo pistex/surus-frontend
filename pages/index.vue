@@ -1,7 +1,7 @@
 <template>
   <v-container id="home">
     <v-card dark>
-      <v-card-title class="text-h2">
+      <v-card-title :class="$vuetify.breakpoint.smAndDown ? 'text-h4' : 'text-h2'">
         Featured articles
       </v-card-title>
       <v-carousel cycle hide-delimiters show-arrows-on-hover height="400">

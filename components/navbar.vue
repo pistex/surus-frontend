@@ -10,7 +10,7 @@
         class="hidden-xs-only"
         :to="menu.path"
       >
-        <v-btn x-large :to="menu.path" text class="menu-btn ">
+        <v-btn x-large :to="menu.path" text class="menu-btn">
           <v-icon left>
             {{ menu.icon }}
           </v-icon>
@@ -25,7 +25,12 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item v-for="menu in menuItems" :key="menu.title" link :to="menu.path">
+          <v-list-item
+            v-for="menu in menuItems"
+            :key="menu.title"
+            link
+            :to="menu.path"
+          >
             <v-list-item-icon>
               <v-icon>{{ menu.icon }}</v-icon>
             </v-list-item-icon>
@@ -40,17 +45,9 @@
       </v-toolbar-items>
     </v-app-bar>
     <v-container>
-      <v-navigation-drawer
-        v-model="drawer"
-        app
-        temporary
-        right
-        dark
-      >
+      <v-navigation-drawer v-model="drawer" app temporary right dark>
         <v-card v-if="!$auth.loggedIn" height="100%">
-          <v-card-title>
-            Login
-          </v-card-title>
+          <v-card-title> Login </v-card-title>
           <v-card-text>
             <v-form>
               <v-text-field
@@ -63,7 +60,7 @@
                 label="password"
               />
             </v-form>
-            <v-card-actions>
+            <v-card-actions class="justify-center">
               <v-btn
                 text
                 outlined
@@ -72,10 +69,40 @@
               >
                 Login
               </v-btn>
-              <v-btn text outlined color="info" @click="registerationFormIsActivated = true">
+              <v-btn
+                text
+                outlined
+                color="info"
+                @click="registerationFormIsActivated = true"
+              >
                 Registeration
               </v-btn>
             </v-card-actions>
+            <v-card-subtitle class="pb-0 text-center">
+              using social media account
+            </v-card-subtitle>
+            <v-card-actions class="justify-center">
+              <v-btn icon @click="firebaseFacebookAuthentication()">
+                <v-icon>mdi-facebook</v-icon>
+              </v-btn>
+              <v-btn icon @click="firebaseGoogleAuthentication()">
+                <v-icon>mdi-google</v-icon>
+              </v-btn>
+            </v-card-actions>
+            <v-card-actions class="justify-center">
+              <v-btn text outlined x-small @click="passwordResetIsActivated = !passwordResetIsActivated; resetPasswordEmailIsSent = false;">
+                reset password
+              </v-btn>
+            </v-card-actions>
+            <v-container v-if="passwordResetIsActivated" class="text-center">
+              <v-text-field v-model="resetPasswordEmail" label="email" />
+              <v-btn text outlined x-small @click="postPasswordReset()">
+                send email
+              </v-btn>
+            </v-container>
+            <v-container v-if="resetPasswordEmailIsSent" class="text-center">
+              Password reset process has been made. If you provided a corrected email address, the email is sent.
+            </v-container>
           </v-card-text>
         </v-card>
         <v-card v-if="$auth.$state.loggedIn" height="100%">
@@ -90,38 +117,45 @@
             </v-avatar>
           </v-container>
           <v-card-title class="justify-center py-0">
-            <p class="text-h4">
-              {{ $auth.$state.user.first_name !== '' && $auth.$state.user.first_name !== '' ? `${$auth.$state.user.first_name} ${$auth.$state.user.first_name}` : $auth.$state.user.username }}
-            </p>
-          </v-card-title>
-          <v-card-title class="justify-center py-0">
             <p class="text-h6">
-              {{ $auth.$state.user.email.filter((object) => {return object.is_primary = true})[0].email }}
+              {{
+                $auth.$state.user.first_name !== "" &&
+                  $auth.$state.user.first_name !== ""
+                  ? `${$auth.$state.user.first_name} ${$auth.$state.user.last_name}`
+                  : $auth.$state.user.username
+              }}
             </p>
           </v-card-title>
+          <v-card-subtitle class="text-center py-0">
+            <v-chip :color="($auth.$state.user.email.filter((email) => {return email.primary})[0].verified) ? 'success' : ''" x-small>
+              {{ ($auth.$state.user.email.filter((email) => {return email.primary})[0].verified) ? 'verified' : 'not verified' }}
+            </v-chip>
+            <p>
+              {{
+                $auth.$state.user.email.filter((object) => {
+                  return (object.is_primary = true);
+                })[0].email
+              }}
+            </p>
+          </v-card-subtitle>
           <v-card-text class="white--text text-center py-0">
             <p>
-              {{ $auth.$state.user.groups.includes('Creator') ? "Let's writing something!": "Welcome to our community!" }}
+              {{
+                $auth.$state.user.groups.includes("Creator")
+                  ? "Let's writing something!"
+                  : "Welcome to our community!"
+              }}
             </p>
             <p v-if="!$auth.$state.user.groups.includes('Creator')">
               You can contact admin to become a creator.
             </p>
           </v-card-text>
           <v-card-actions class="justify-center">
-            <v-btn
-              text
-              outlined
-              color="info"
-            >
+            <v-btn text outlined color="info">
               Edit profile
             </v-btn>
             <v-spacer />
-            <v-btn
-              text
-              outlined
-              color="error"
-              @click="postLogout()"
-            >
+            <v-btn text outlined color="error" @click="postLogout()">
               Logout
             </v-btn>
           </v-card-actions>
@@ -182,12 +216,8 @@
           >
             Close
           </v-btn>
-          <v-btn
-            text
-            color="success"
-            @click="postRegister()"
-          >
-            Save
+          <v-btn text color="success" @click="postRegister()">
+            Register
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -203,7 +233,11 @@ export default {
   data () {
     return {
       drawer: false,
+      resetPasswordEmail: '',
       registerationFormIsActivated: false,
+      passwordResetIsActivated: false,
+      resetPasswordEmailIsSent: false,
+      profileEditor: false,
       menuItems: [
         { title: 'Home', path: '/', icon: 'mdi-home' },
         { title: 'Blog', path: '/blog/', icon: 'mdi-newspaper' },
@@ -224,10 +258,8 @@ export default {
   computed: {
     ...mapGetters('authenticationStore', ['authenticationStatus'])
   },
-  mounted () {
-  },
   methods: {
-    ...mapActions('authenticationStore', ['postLogin', 'postLogout']),
+    ...mapActions('authenticationStore', ['postLogin', 'postLogout', 'firebaseFacebookAuthentication', 'firebaseGoogleAuthentication']),
     async postRegister () {
       if (!this.registerForm.user && !this.registerForm.email) {
         alert('Please fill required filed.')
@@ -236,15 +268,30 @@ export default {
       } else {
         this.registerationFormIsActivated = false
         try {
-          await this.$axios.post('/authentication/registration/', this.registerForm)
+          await this.$axios.post(
+            '/authentication/registration/',
+            this.registerForm
+          )
         } catch (error) {
           errorResponseAlert(error)
         }
         try {
-          this.postLogin({ username: this.registerForm.username, password: this.registerForm.password2 })
+          this.postLogin({
+            username: this.registerForm.username,
+            password: this.registerForm.password2
+          })
         } catch (error) {
           alert('registeration completed')
         }
+      }
+    },
+    async postPasswordReset () {
+      try {
+        await this.$axios.post('/authentication/password/reset/', { email: this.resetPasswordEmail })
+        this.passwordResetIsActivated = false
+        this.resetPasswordEmailIsSent = true
+      } catch (error) {
+        errorResponseAlert(error)
       }
     }
   }

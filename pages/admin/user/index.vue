@@ -60,7 +60,7 @@
             </v-col>
             <v-col cols="2.5" class="user_entry">
               <v-card-subtitle class="black--text">
-                {{ user.email.filter(object => {return object.primary })[0].email }}
+                {{ user.email.filter(object => {return object.primary })[0].email.length >= 20 ? user.email.filter(object => {return object.primary })[0].email.substring(0, 20) + '..' : user.email.filter(object => {return object.primary })[0].email }}
               </v-card-subtitle>
             </v-col>
             <v-col cols="2.5" class="user_entry">

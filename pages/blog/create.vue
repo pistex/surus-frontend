@@ -493,6 +493,7 @@ import {
 } from '@/plugins/tiptap-extensions.js'
 import { hljs, python } from '@/plugins/highlight.js'
 import errorResponseAlert from '@/helpers/axios-request-error'
+import smallScreenWarning from '@/helpers/not-optimized-for-small-device'
 export default {
   components: {
     EditorContent,
@@ -618,7 +619,10 @@ export default {
       }
     }
   },
-  beforeMount () {
+  created () {
+    if (this.$vuetify.breakpoint.smAndDown) {
+      smallScreenWarning()
+    }
     this.getImages()
     this.getTags()
   },

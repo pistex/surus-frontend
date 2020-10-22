@@ -1,4 +1,5 @@
 import errorResponseAlert from '@/helpers/axios-request-error'
+import Firebase from 'firebase/app'
 export const authenticationStore = {
   namespaced: true,
   state: { authenticationStatus: 'No user logged in.' },
@@ -21,7 +22,7 @@ export const authenticationStore = {
           }
           commit('setToken', userData.token)
           commit('setHeader', userData.token)
-          const profileResponse = await this.$axios.get('/user_profile/' + loginResponse.data.user.pk + ' /')
+          const profileResponse = await this.$axios.get(`/user_profile/${loginResponse.data.user.pk}/`)
           commit('loginSuccess', profileResponse.data)
         } else {
           alert('No authentication respone')
@@ -36,6 +37,46 @@ export const authenticationStore = {
         await this.$axios.post('/authentication/logout/')
         delete this.$axios.defaults.headers.common.Authorization
         commit('logoutSuccess')
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
+    async firebaseFacebookAuthentication ({ commit }) {
+      const provider = new Firebase.auth.FacebookAuthProvider()
+      try {
+        const firebaseLogin = await Firebase.auth().signInWithPopup(provider)
+        const accessToken = firebaseLogin.credential.accessToken
+        const backendLogin = await this.$axios.post('authentication/facebook/', { access_token: accessToken })
+        const userData = {
+          token: {
+            access: backendLogin.data.access_token,
+            refresh: backendLogin.data.refresh_token
+          }
+        }
+        commit('setToken', userData.token)
+        commit('setHeader', userData.token)
+        const profileResponse = await this.$axios.get(`/user_profile/${backendLogin.data.user.pk}/`)
+        commit('loginSuccess', profileResponse.data)
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
+    async firebaseGoogleAuthentication ({ commit }) {
+      const provider = new Firebase.auth.GoogleAuthProvider().addScope('email')
+      try {
+        const firebaseLogin = await Firebase.auth().signInWithPopup(provider)
+        const accessToken = firebaseLogin.credential.accessToken
+        const backendLogin = await this.$axios.post('authentication/google/', { access_token: accessToken })
+        const userData = {
+          token: {
+            access: backendLogin.data.access_token,
+            refresh: backendLogin.data.refresh_token
+          }
+        }
+        commit('setToken', userData.token)
+        commit('setHeader', userData.token)
+        const profileResponse = await this.$axios.get(`/user_profile/${backendLogin.data.user.pk}/`)
+        commit('loginSuccess', profileResponse.data)
       } catch (error) {
         errorResponseAlert(error)
       }

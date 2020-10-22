@@ -45,7 +45,7 @@
           <v-row v-for="blog in allBlogs" :key="blog.id" no-gutters tile>
             <v-col cols="4" class="blog_entry">
               <v-card-subtitle class="black--text">
-                {{ blog.title.en.length >= 50 ? `${blog.title.en.substring(0, 50)}..`: blog.title.en }}
+                {{ blog.title.en.length >= 45 ? `${blog.title.en.substring(0, 45)}..`: blog.title.en }}
               </v-card-subtitle>
             </v-col>
             <v-col cols="2" class="blog_entry">
@@ -107,12 +107,10 @@ export default {
   async created () {
     await this.getImages()
     await this.getAllBlogs()
-    // if (process.client) {
     await this.allBlogs.forEach(async (blog) => {
       const response = await this.$axios.get(`/blog/${blog.id}/`)
       this.blogHistory.push({ id: blog.id, ...response.data.history })
     })
-    // }
   },
   methods: {
     ...mapActions('blogStore', ['getAllBlogs', 'getImages']),

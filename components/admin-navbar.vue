@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import smallScreenWarning from '@/helpers/not-optimized-for-small-device'
 export default {
   name: 'AdminNavbar',
   data () {
@@ -42,6 +43,11 @@ export default {
   beforeCreate () {
     if (!this.$auth.$state.loggedIn || (this.$auth.$state.user && !this.$auth.$state.user.is_superuser)) {
       this.$router.push('/')
+    }
+  },
+  created () {
+    if (this.$vuetify.breakpoint.smAndDown) {
+      smallScreenWarning()
     }
   }
 }

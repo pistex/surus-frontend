@@ -3,7 +3,50 @@
     <v-row justify="center" no-gutters>
       <v-col cols="10" align="end" class="pb-2">
         <v-btn
-          v-if="$auth.$state.loggedIn && $auth.$state.user.username === blogAuthor.username"
+          dark
+          class="mr-2"
+          @click="issueReporterPopup = true"
+        >
+          report
+        </v-btn>
+        <v-dialog v-model="issueReporterPopup" hide-overlay max-width="500">
+          <v-card dark>
+            <v-card-title>
+              Report issue
+            </v-card-title>
+            <v-card-text class="pb-0">
+              <v-select
+                v-model="issueCategory"
+                :items="issueCategorySeletor"
+                label="Category"
+              />
+              <v-text-field
+                v-model="issueTitle"
+                label="Topic"
+                counter="200"
+                maxlength="200"
+              />
+              <v-textarea
+                v-model="issueBody"
+                label="Detail"
+                counter="1000"
+                maxlength="1000"
+              />
+              <v-text-field
+                v-if="!$auth.$state.loggedIn"
+                v-model="reporterEmail"
+                label="Email"
+              />
+            </v-card-text>
+            <v-card-actions class="justify-center">
+              <v-btn @click="postIssue()">
+                submit
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-btn
+          v-if="($auth.$state.loggedIn && $auth.$state.user.username === blogAuthor.username) || ($auth.$state.loggedIn && $auth.$state.user.is_superuser)"
           dark
           class="mr-2"
           :to="`/blog/${$route.params.slug}/edit`"
@@ -404,6 +447,12 @@ export default {
       isPrimaryLanguge: true,
       selectedBlogDate: null,
       historyPopup: false,
+      issueReporterPopup: false,
+      issueTitle: '',
+      issueBody: '',
+      issueCategory: '',
+      issueCategorySeletor: ['Code', 'System', 'Typo', 'Etc'],
+      reporterEmail: '',
       editingComment: '',
       currentComment: '',
       editingReply: '',
@@ -607,10 +656,43 @@ export default {
       document.getElementById('history_button').innerHTML =
         'Blog version: ' + this.selectedBlogDate
       this.resizeImage('blog__content')
+    },
+    async postIssue () {
+      if (!this.$auth.$state.loggedIn && this.reporterEmail === '') {
+        alert('Please provide your contact.')
+        return
+      }
+      if (this.issueTitle === '' || this.issueBody === '' || this.issueCategory === '') {
+        alert('Please provide your issue detail.')
+        return
+      }
+      const issuePost = {
+        title: this.issueTitle,
+        blog_id: this.blogId,
+        body: this.reporterEmail === '' ? this.issueBody : `${this.issueBody} Contact: ${this.reporterEmail}`,
+        category: this.issueCategory.toUpperCase()
+      }
+      if (!this.$auth.$state.loggedIn) {
+        try {
+          await this.$recaptcha.getResponse()
+          await this.$recaptcha.reset()
+          this.issueReporterPopup = false
+        } catch (error) {
+          alert('reCAPTCHA failed.')
+        }
+      }
+      try {
+        const postRespone = await this.$axios.post('/issue/', issuePost)
+        const issueElement = await this.$axios.get(`/issue/${postRespone.data.id}/`)
+        alert(`Your is report ticket number is #${String(issueElement.data.id).padStart(4, '0')}. We will investigate the issue and contact you back as soon as possible.`)
+        this.issueReporterPopup = false
+        this.issueTitle = ''
+        this.issueBody = ''
+        this.issueCategory = ''
+      } catch (error) {
+        errorResponseAlert(error)
+      }
     }
   }
 }
 </script>
-
-<style >
-</style>

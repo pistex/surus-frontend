@@ -4,14 +4,17 @@
     <v-main class="pt-4 pb-8">
       <nuxt />
     </v-main>
+    <Footer v-if="disableAdminPanel()" />
   </v-app>
 </template>
 
 <script>
 import Navbar from '@/components/navbar'
+import Footer from '@/components/footer'
 export default {
   components: {
-    Navbar
+    Navbar,
+    Footer
   },
   methods: {
     disableAdminPanel () {

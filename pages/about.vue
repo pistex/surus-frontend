@@ -23,12 +23,94 @@
     <p class="text-h5">
       <a href="https://github.com/pistex/surus-frontend">https://github.com/pistex/surus-frontend</a>
     </p>
+    <v-card dark>
+      <v-card-title>
+        Report issue
+      </v-card-title>
+      <v-card-text class="pb-0">
+        <v-select
+          v-model="issueCategory"
+          :items="issueCategorySeletor"
+          label="Category"
+        />
+        <v-text-field
+          v-model="issueTitle"
+          label="Topic"
+          counter="200"
+          maxlength="200"
+        />
+        <v-textarea
+          v-model="issueBody"
+          label="Detail"
+          counter="1000"
+          maxlength="1000"
+        />
+        <v-text-field
+          v-if="!$auth.$state.loggedIn"
+          v-model="reporterEmail"
+          label="Email"
+        />
+      </v-card-text>
+      <v-card-actions class="justify-center">
+        <recaptcha />
+        <v-btn @click="postIssue()">
+          submit
+        </v-btn>
+      </v-card-actions>
+    </v-card>
   </v-container>
 </template>
 
 <script>
+import errorResponseAlert from '@/helpers/axios-request-error'
 export default {
-
+  data () {
+    return {
+      issueReporterPopup: false,
+      issueTitle: '',
+      issueBody: '',
+      issueCategory: '',
+      issueCategorySeletor: ['Code', 'System', 'Typo', 'Etc']
+    }
+  },
+  methods: {
+    async postIssue () {
+      if (!this.$auth.$state.loggedIn && this.reporterEmail === '') {
+        alert('Please provide your contact.')
+        return
+      }
+      if (this.issueTitle === '' || this.issueBody === '' || this.issueCategory === '') {
+        alert('Please provide your issue detail.')
+        return
+      }
+      const issuePost = {
+        title: this.issueTitle,
+        blog_id: this.blogId,
+        body: this.reporterEmail === '' ? this.issueBody : `${this.issueBody} Contact: ${this.reporterEmail}`,
+        category: this.issueCategory.toUpperCase()
+      }
+      if (!this.$auth.$state.loggedIn) {
+        try {
+          await this.$recaptcha.getResponse()
+          await this.$recaptcha.reset()
+          this.issueReporterPopup = false
+        } catch (error) {
+          alert('reCAPTCHA failed.')
+        }
+      }
+      try {
+        const postRespone = await this.$axios.post('/issue/', issuePost)
+        const issueElement = await this.$axios.get(`/issue/${postRespone.data.id}/`)
+        alert(`Your is report ticket number is #${String(issueElement.data.id).padStart(4, '0')}. We will investigate the issue and contact you back as soon as possible.`)
+        this.issueReporterPopup = false
+        this.issueTitle = ''
+        this.issueBody = ''
+        this.issueCategory = ''
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    }
+  }
 }
 </script>
 

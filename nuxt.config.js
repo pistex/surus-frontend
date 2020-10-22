@@ -1,10 +1,14 @@
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager'
-const client = new SecretManagerServiceClient()
+if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = require('path').resolve(__dirname, '.secret/credential.json')
+}
+const secretManagerClient = new SecretManagerServiceClient()
 async function accessSecret (name) {
-  const [accessResponse] = await client.accessSecretVersion({ name })
+  const [accessResponse] = await secretManagerClient.accessSecretVersion({ name })
   const responsePayload = accessResponse.payload.data.toString('utf8')
   return responsePayload
 }
+
 export default async function () {
   return {
     head: {
@@ -20,16 +24,8 @@ export default async function () {
       ]
     },
 
-    // Global CSS (https://go.nuxtjs.dev/config-css)
-    css: [
-    ],
-
-    // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-
-    // Auto import components (https://go.nuxtjs.dev/config-components)
     components: true,
 
-    // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
     buildModules: [
       '@nuxtjs/eslint-module',
       '@nuxtjs/vuetify'
@@ -38,29 +34,35 @@ export default async function () {
     modules: [
       '@nuxtjs/axios',
       '@nuxtjs/auth',
-      '@nuxtjs/recaptcha'
+      '@nuxtjs/recaptcha',
+      '@nuxtjs/firebase'
     ],
 
     recaptcha: {
-      siteKey: await accessSecret('projects/808537418853/secrets/reCAPCHA/versions/1'),
-      // '6LcawdcZAAAAAD4XM1fQFRlXj5xj4oAY8cBmC9xa',
+      siteKey: await accessSecret('projects/808537418853/secrets/RECAPTCHA_SITE_KEY/versions/1'),
       size: 'invisible',
       hideBadge: true,
       version: 2
     },
 
-    // Axios module configuration (https://go.nuxtjs.dev/config-axios)
-    axios: {
-      baseURL: 'http://localhost:8000'
+    firebase: {
+      config: {
+        apiKey: await accessSecret('projects/808537418853/secrets/FIREBASE_API_KEY/versions/1'),
+        authDomain: 'surus-d6101.firebaseapp.com',
+        projectId: 'surus-d6101',
+        appId: '1:808537418853:web:cf5508484a481d71752a8c',
+        measurementId: 'G-9ECFE8J2Z9'
+      },
+      services: {
+        auth: true,
+        analytics: true
+      }
     },
 
-    // Content module configuration (https://go.nuxtjs.dev/config-content)
-    content: {},
+    axios: {
+      baseURL: await accessSecret('projects/808537418853/secrets/API_BASE_URL/versions/1')
+    },
 
-    // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
-    vuetify: {},
-
-    // Build Configuration (https://go.nuxtjs.dev/config-build)
     build: {
       transpile: ['tiptap.js', 'tiptap-extentions.js', 'highlight.js', 'vue-clipboard2']
     },

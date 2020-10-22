@@ -724,7 +724,7 @@ export default {
       if (this.changeReason && this.changeReason !== '') {
         postData.reason = this.changeReason
       } else {
-        delete postData.reason
+        postData.reason = 'no change reason'
       }
       try {
         const response = await this.$axios.patch(`/blog/${this.blogId}/`, postData)
