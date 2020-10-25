@@ -26,7 +26,6 @@
                 <v-btn
                   @click="
                     isPrimaryLanguage = !isPrimaryLanguage;
-                    refreshEditor();
                   "
                 >
                   {{ isPrimaryLanguage ? "EN" : "TH" }}
@@ -745,10 +744,13 @@ export default {
     },
     activatePreview () {
       localStorage.setItem('previewTitle', this.blogTitle)
-      localStorage.setItem('previewTitleTh', this.blogTitle)
+      localStorage.setItem('previewTitleTh', this.blogTitleTh)
       localStorage.setItem('previewContent', this.rawHtml)
       localStorage.setItem('previewContentTh', this.rawHtmlTh)
     }
+  },
+  head () {
+    return { title: `Editing ${this.blogTitle}` }
   }
 }
 </script>

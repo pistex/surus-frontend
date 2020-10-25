@@ -26,6 +26,9 @@ export default {
       this.emailIsVerified = false
       this.statusChecked = true
     }
+  },
+  head () {
+    return { title: 'Email verification' }
   }
 }
 </script>

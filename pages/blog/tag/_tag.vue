@@ -88,6 +88,9 @@ export default {
         element.body.en = tempDom.textContent
       })
     }
+  },
+  head () {
+    return { title: this.$route.params.tag }
   }
 }
 </script>

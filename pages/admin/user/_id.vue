@@ -204,6 +204,9 @@ export default {
         this.updateUserGroups({ id: this.$route.params.id, groups: this.newUserGroup })
       }
     }
+  },
+  head () {
+    return { title: this.userDetail ? `Editing user ${this.userDetail.username}` : 'Loading...' }
   }
 }
 </script>

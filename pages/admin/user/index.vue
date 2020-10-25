@@ -109,6 +109,9 @@ export default {
   },
   methods: {
     ...mapActions('adminPanel', ['getAllUsers', 'deleteUser'])
+  },
+  head () {
+    return { title: 'Users' }
   }
 }
 </script>

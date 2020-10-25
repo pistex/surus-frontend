@@ -5,6 +5,9 @@
         <v-btn dark to="/blog/create">
           Create
         </v-btn>
+        <v-btn dark @click="isPrimaryLangauge = !isPrimaryLangauge">
+          {{ isPrimaryLangauge ? 'EN' : 'TH' }}
+        </v-btn>
       </v-col>
     </v-row>
     <v-row v-for="blog in allBlogs.filter((element, index) => {return index+1 >= 1+((page-1)*8) && index+1 <= page*8})" :key="blog.id" justify="center">
@@ -15,7 +18,7 @@
             max-height="200px"
           />
           <v-card-title>
-            <a :href="`/blog/${blog.slug}`">{{ blog.title.en }}</a>
+            <a :href="`/blog/${blog.slug}`">{{ isPrimaryLangauge ? blog.title.en : blog.title.th }}</a>
           </v-card-title>
           <v-card-subtitle>
             <v-chip v-for="tag in blog.tag" :key="tag.text" x-small :to="`/blog/tag/${tag.text}`">
@@ -23,12 +26,10 @@
             </v-chip>
           </v-card-subtitle>
           <v-card-text class="hidden-xs-only">
-            {{ blog.body.en.substring(0, 560) + ".." }}
+            {{ (isPrimaryLangauge ? blog.body.en.substring(0, 560) : blog.body.th.substring(0, 560)) + ".." }}
           </v-card-text>
           <v-card-text class="hidden-sm-and-up">
-            {{
-              blog.body.en.substring(0, 170) + ".."
-            }}
+            {{ (isPrimaryLangauge ? blog.body.en.substring(0, 170) : blog.body.th.substring(0, 170)) + ".." }}
           </v-card-text>
         </v-card>
       </v-col>
@@ -62,7 +63,8 @@ export default {
   },
   data () {
     return {
-      page: 1
+      page: 1,
+      isPrimaryLangauge: true
     }
   },
   computed: {
@@ -77,11 +79,18 @@ export default {
     truncateBlogBody () {
       this.allBlogs.forEach((element) => {
         const rawHtml = element.body.en
+        const rawHtmlTh = element.body.th
         const tempDom = document.createElement('div')
+        const tempDomTh = document.createElement('div')
         tempDom.innerHTML = rawHtml
+        tempDomTh.innerHTML = rawHtmlTh
         element.body.en = tempDom.textContent
+        element.body.th = tempDomTh.textContent
       })
     }
+  },
+  head () {
+    return { title: 'Blogs' }
   }
 }
 </script>

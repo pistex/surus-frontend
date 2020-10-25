@@ -39,6 +39,9 @@ export default {
   },
   methods: {
     ...mapActions('blogStore', ['getAllBlogs', 'getImages'])
+  },
+  head () {
+    return { title: 'Homepage' }
   }
 }
 </script>

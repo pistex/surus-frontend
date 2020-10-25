@@ -760,6 +760,9 @@ export default {
         .childNodes[0]
       copyButton.innerHTML = 'Copy'
     }
+  },
+  head () {
+    return { title: 'Create a new blog' }
   }
 }
 </script>

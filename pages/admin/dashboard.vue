@@ -240,6 +240,9 @@ export default {
       this.issueDetail = { ticketNumber, title, body, category, user }
       this.issuePopup = true
     }
+  },
+  head () {
+    return { title: 'Dashboard' }
   }
 }
 </script>

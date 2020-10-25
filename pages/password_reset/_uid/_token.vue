@@ -51,7 +51,6 @@ export default {
         new_password1: this.newPassword,
         new_password2: this.confirmNewPassword
       }
-      console.log(passwordRetData)
       try {
         await this.$axios.post('/authentication/password/reset/confirm/', passwordRetData)
         this.passwordIsReset = true
@@ -59,6 +58,9 @@ export default {
         errorResponseAlert(error)
       }
     }
+  },
+  head () {
+    return { title: 'Password reset' }
   }
 }
 </script>

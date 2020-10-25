@@ -211,6 +211,9 @@ export default {
       this.newGroupName = null
       this.groupEditorIsActivated[id] = false
     }
+  },
+  head () {
+    return { title: 'Group' }
   }
 }
 </script>

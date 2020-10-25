@@ -112,6 +112,9 @@ export default {
         errorResponseAlert(error)
       }
     }
+  },
+  head () {
+    return { title: 'About' }
   }
 }
 </script>

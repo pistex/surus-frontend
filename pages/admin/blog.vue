@@ -129,6 +129,9 @@ export default {
         throw new Error(error)
       }
     }
+  },
+  head () {
+    return { title: 'Blog' }
   }
 }
 </script>

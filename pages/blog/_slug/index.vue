@@ -389,7 +389,7 @@ export default {
     let blogIsEdited = false
     const blogHistory = []
     const blogHistorySelector = []
-
+    const isPrimaryLanguge = true
     try {
       const filteredArticle = await $axios.get(`/blog/?slug=${params.slug}`)
       blogId = filteredArticle.data[0].id
@@ -437,7 +437,7 @@ export default {
           }
         })
       }
-      return { htmlBody, htmlBodyTh, blogId, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor, allComments, allReplies, blogTag }
+      return { htmlBody, htmlBodyTh, blogId, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor, allComments, allReplies, blogTag, isPrimaryLanguge }
     } catch (error) {
       errorResponseAlert(error)
       throw new Error(error)
@@ -446,7 +446,6 @@ export default {
   data () {
     return {
       cloudStorageRoot: '',
-      isPrimaryLanguge: true,
       selectedBlogDate: null,
       historyPopup: false,
       issueReporterPopup: false,
@@ -687,6 +686,11 @@ export default {
       } catch (error) {
         errorResponseAlert(error)
       }
+    }
+  },
+  head () {
+    return {
+      title: this.isPrimaryLanguge ? this.blogTitle : this.blogTitleTh
     }
   }
 }

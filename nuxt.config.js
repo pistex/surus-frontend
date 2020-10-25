@@ -15,15 +15,11 @@ export default async function () {
       CLOUD_STORAGE_ROOT: await accessSecret('projects/808537418853/secrets/CLOUD_STORAGE_ROOT/versions/1')
     },
     head: {
-      titleTemplate: '%s - surus-frontend',
-      title: 'surus-frontend',
+      titleTemplate: '%s - S U R U S',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { hid: 'description', name: 'description', content: '' }
-      ],
-      link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
       ]
     },
 
