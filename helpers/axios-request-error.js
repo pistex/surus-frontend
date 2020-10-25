@@ -5,7 +5,7 @@ export default function errorResponseAlert (error) {
       if (error.response.data.detail) {
         alert(error.response.data.detail)
       } else if (responseStatus === 400) {
-        alert('Invalid data is sent to server. Please try agian.')
+        alert('Invalid data is sent to server. Please try again.')
       } else if (responseStatus === 401) {
         alert('Authorization failed. The authenticated user is not allowed to perform this action or the request is made by anonymous user.')
       } else if (responseStatus === 403) {

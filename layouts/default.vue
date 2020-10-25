@@ -61,6 +61,7 @@ export default {
 .ProseMirror {
   height: 400px;
   overflow: auto;
+  outline: none;
 }
 pre {
   &::before {

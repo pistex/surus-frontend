@@ -1,27 +1,17 @@
 <template>
   <client-only>
-    <v-container id="blog_edit" class="py-0">
+    <v-container id="blog_create" class="py-0">
       <v-container class="editor">
-        <v-row justify="center" no-gutters>
-          <v-col cols="10" align="end" class="py-2">
-            <v-btn color="error" @click="deleteBlog()">
-              delete
-            </v-btn>
-          </v-col>
-        </v-row>
         <v-row justify="center" no-gutters>
           <v-col cols="10">
             <v-tabs v-model="editor_tab" dark>
-              <v-tab @click="refreshEditor()">
+              <v-tab @click="setContent()">
                 Editor
               </v-tab>
-              <v-tab @click="refreshEditor()">
+              <v-tab @click="rawHtmlBufferTrigger()">
                 Raw
               </v-tab>
               <v-tab>Images </v-tab>
-              <v-tab @click="refreshEditor()">
-                Preview
-              </v-tab>
               <v-container
                 class="d-flex justify-end align-center text-center"
                 aria-selected="true"
@@ -29,7 +19,6 @@
                 <v-btn
                   @click="
                     isPrimaryLanguage = !isPrimaryLanguage;
-                    refreshEditor();
                   "
                 >
                   {{ isPrimaryLanguage ? "EN" : "TH" }}
@@ -263,6 +252,7 @@
                       color="black"
                       label="Title"
                       hide-details="auto"
+                      @change="blogTitleBufferTrigger()"
                     />
                     <v-text-field
                       v-if="!isPrimaryLanguage"
@@ -272,6 +262,7 @@
                       color="black"
                       label="Title"
                       hide-details="auto"
+                      @change="blogTitleBufferTrigger()"
                     />
                   </v-col>
                 </v-row>
@@ -338,16 +329,6 @@
                     />
                   </v-col>
                 </v-row>
-                <v-row no-gutters>
-                  <v-col cols="12 px-0 py-0">
-                    <v-container
-                      class="text-button black white--text"
-                    >
-                      change reason
-                    </v-container>
-                    <v-text-field v-model="changeReason" color="black" hide-details="auto" />
-                  </v-col>
-                </v-row>
               </v-tab-item>
               <v-tab-item>
                 <v-row no-gutters>
@@ -370,12 +351,14 @@
                         v-model="rawHtml"
                         class="rawhtml"
                         style="width: 100%; height: 100%"
+                        @change="rawHtmlBufferTrigger()"
                       />
                       <textarea
                         v-if="!isPrimaryLanguage"
                         v-model="rawHtmlTh"
                         class="rawhtml"
                         style="width: 100%; height: 100%"
+                        @change="rawHtmlBufferTrigger()"
                       />
                     </v-sheet>
                   </v-col>
@@ -463,17 +446,14 @@
                   </v-col>
                 </v-row>
               </v-tab-item>
-              <v-tab-item>
-                <v-container
-                  class="blog__content"
-                  v-html="isPrimaryLanguage ? rawHtml : rawHtmlTh"
-                />
-              </v-tab-item>
             </v-tabs-items>
           </v-col>
           <v-col cols="10" class="py-2" align="center">
-            <v-btn dark @click="patchBlog()">
-              Save
+            <v-btn dark @click="postBlog()">
+              Submit
+            </v-btn>
+            <v-btn dark to="/blog/create/preview/" target="_blank">
+              Preview
             </v-btn>
           </v-col>
         </v-row>
@@ -506,8 +486,9 @@ import {
   History,
   Image
 } from '@/plugins/tiptap-extensions.js'
-import { hljs, python } from '@/plugins/highlight.js'
-
+import { python } from '@/plugins/highlight.js'
+import errorResponseAlert from '@/helpers/axios-request-error'
+import smallScreenWarning from '@/helpers/not-optimized-for-small-device'
 export default {
   components: {
     EditorContent,
@@ -515,6 +496,7 @@ export default {
   },
   data () {
     return {
+      breakPointChecked: false,
       isPrimaryLanguage: true,
       blogTags: [],
       search: null,
@@ -523,18 +505,17 @@ export default {
       imageUrl: null,
       linkMenu: false,
       linkUrl: null,
-      rawHtml: '',
-      rawHtmlTh: '',
-      blogTitle: '',
-      blogTitleTh: '',
-      blogId: '',
+      rawHtmlBuffer: '',
+      rawHtmlBufferTh: '',
+      blogTitleBuffer: '',
+      blogTitleBufferTh: '',
       lockEditor: false,
       uploadedImage: null,
       newestFirst: true,
       allImages: {},
       allImagesReversedOrder: {},
+      blogisPosted: false,
       editor_tab: null,
-      changeReason: null,
       editor: process.client ? new Editor({
         extensions: [
           new CodeBlockHighlight({
@@ -564,7 +545,8 @@ export default {
         content: '',
         onUpdate: ({ getHTML }) => {
           if (!this.lockEditor) {
-            this.rawHtml = getHTML()
+            localStorage.setItem('updatedContent', getHTML())
+            this.rawHtmlBufferTrigger()
           } else {
             alert('The editor is locked.')
             this.setContent()
@@ -600,7 +582,8 @@ export default {
         content: '',
         onUpdate: ({ getHTML }) => {
           if (!this.lockEditor) {
-            this.rawHtmlTh = getHTML()
+            localStorage.setItem('updatedContentTh', getHTML())
+            this.rawHtmlBufferTrigger()
           } else {
             alert('The editor is locked.')
             this.setContent()
@@ -610,46 +593,72 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('blogStore', ['allTags'])
+    ...mapGetters('blogStore', ['allTags']),
+    rawHtml: {
+      get () {
+        return this.rawHtmlBuffer
+      },
+      set (updatedContent) {
+        return localStorage.setItem('updatedContent', updatedContent)
+      }
+    },
+    rawHtmlTh: {
+      get () {
+        return this.rawHtmlBufferTh
+      },
+      set (updatedContent) {
+        return localStorage.setItem('updatedContentTh', updatedContent)
+      }
+    },
+    blogTitle: {
+      get () {
+        return this.blogTitleBuffer
+      },
+      set (updatedTitle) {
+        return localStorage.setItem('updatedTitle', updatedTitle)
+      }
+    },
+    blogTitleTh: {
+      get () {
+        return this.blogTitleBufferTh
+      },
+      set (updatedTitle) {
+        return localStorage.setItem('updatedTitleTh', updatedTitle)
+      }
+    }
   },
-  beforeMount () {
+  created () {
     this.getImages()
     this.getTags()
-    this.getThisBlog()
+  },
+  mounted () {
+    this.rawHtmlBufferTrigger()
+    this.blogTitleBufferTrigger()
+    this.setContent()
+  },
+  updated () {
+    if (!this.breakPointChecked) {
+      if (this.$vuetify.breakpoint.smAndDown) {
+        smallScreenWarning()
+      }
+      this.breakPointChecked = true
+    }
   },
   methods: {
     ...mapActions('blogStore', ['getTags']),
-    async getThisBlog () {
-      try {
-        const filteredArticle = await this.$axios.get(`/blog/?slug=${this.$route.params.slug}`)
-        const blogData = await this.$axios.get(`/blog/${filteredArticle.data[0].id}/`)
-        this.blogTitle = blogData.data.title.en
-        this.blogTitleTh = blogData.data.title.th
-        blogData.data.tag.forEach((element) => {
-          this.blogTags.push(element.text)
-        })
-        this.rawHtml = blogData.data.body.en
-        this.rawHtmlTh = blogData.data.body.th
-        this.blogId = blogData.data.id
-        this.editor.setContent(this.rawHtml)
-        this.editorTh.setContent(this.rawHtmlTh)
-      } catch (error) {
-        throw new Error(error)
+    setContent () {
+      if (process.client) {
+        this.editor.setContent(localStorage.getItem('updatedContent'))
+        this.editorTh.setContent(localStorage.getItem('updatedContentTh'))
       }
     },
-    async removeProseMirrorOutline () {
-      await this.$store.dispatch('sleep', 400)
-      const ProseMirror = document.getElementsByClassName('ProseMirror')[0]
-      ProseMirror.style.outline = 'none'
+    rawHtmlBufferTrigger () {
+      this.rawHtmlBuffer = localStorage.getItem('updatedContent')
+      this.rawHtmlBufferTh = localStorage.getItem('updatedContentTh')
     },
-    setContent () {
-      this.editor.setContent(this.rawHtml)
-      this.editorTh.setContent(this.rawHtmlTh)
-    },
-    async updateHighlight () {
-      hljs.initHighlighting.called = false
-      await this.$store.dispatch('sleep', 400)
-      await hljs.initHighlighting()
+    blogTitleBufferTrigger () {
+      this.blogTitleBuffer = localStorage.getItem('updatedTitle')
+      this.blogTitleBufferTh = localStorage.getItem('updatedTitleTh')
     },
     showLinkMenu (attrs) {
       this.linkMenu = true
@@ -674,10 +683,11 @@ export default {
         this.allImages = response.data
         this.allImagesReversedOrder = [...response.data].reverse()
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     },
-    async patchBlog () {
+    async postBlog () {
+      await this.rawHtmlBufferTrigger()
       const tagObjects = []
       this.blogTags.forEach((element) => {
         tagObjects.push({ text: element })
@@ -685,15 +695,14 @@ export default {
       const postData = {
         title: {
           en: this.blogTitle,
-          th: this.blogTitleTh
+          th: this.blogTitleTh ? this.blogTitleTh : ''
         },
         body: {
           en: this.rawHtml,
           th: (this.rawHtmlTh && this.rawHtmlTh !== '') ? this.rawHtmlTh : '<p class="text-center text-h4">ขออภัย บทความนี้ไม่มีในภาษาไทย<p>'
         },
         tag: tagObjects,
-        thumbnail: null,
-        reason: null
+        thumbnail: null
       }
       if (this.uploadedThumbnail) {
         try {
@@ -702,29 +711,19 @@ export default {
           const image = await this.$axios.post('/image/', formData)
           postData.thumbnail = image.data.id
         } catch (error) {
-          throw new Error(error)
+          errorResponseAlert(error)
         }
-      } else {
-        delete postData.thumbnail
-      }
-      if (this.changeReason && this.changeReason !== '') {
-        postData.reason = this.changeReason
-      } else {
-        postData.reason = 'no change reason'
       }
       try {
-        const response = await this.$axios.patch(`/blog/${this.blogId}/`, postData)
-        this.$router.push(`/blog/${response.data.slug}`)
-      } catch (error) {
-        throw new Error(error)
-      }
-    },
-    async deleteBlog () {
-      try {
-        await this.$axios.delete(`/blog/${this.blogId}/`)
+        await this.$axios.post('/blog/', postData)
+        this.blogisPosted = true
+        await localStorage.removeItem('updatedContent')
+        await localStorage.removeItem('updatedContentTh')
+        await localStorage.removeItem('updatedTitle')
+        await localStorage.removeItem('updatedTitleTh')
         this.$router.push('/blog')
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     },
     async postImage () {
@@ -735,44 +734,56 @@ export default {
         await this.getImages()
         this.uploadedImage = null
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     },
     async deleteImage (id) {
       try {
-        await this.$axios.delete('/image/' + id + '/')
+        await this.$axios.delete(`image/${id}/`)
         await this.getImages()
       } catch (error) {
-        throw new Error(error)
+        errorResponseAlert(error)
       }
     },
     copyImageUrl (message, id) {
-      this.$copyText(message)
-      const copyButton = document.getElementById('image_copy_button_' + id)
-        .childNodes[0]
-      copyButton.innerHTML = 'Copied!'
+      try {
+        this.$copyText(message)
+        const copyButton = document.getElementById(`image_copy_button_${id}`)
+          .childNodes[0]
+        copyButton.innerHTML = 'Copied!'
+      } catch (error) {
+        errorResponseAlert(error)
+      }
     },
     changeCopyButton (id) {
-      const copyButton = document.getElementById('image_copy_button_' + id)
+      const copyButton = document.getElementById(`image_copy_button_${id}`)
         .childNodes[0]
       copyButton.innerHTML = 'Copy'
-    },
-    async refreshEditor () {
-      await this.setContent()
-      await this.removeProseMirrorOutline()
-      await this.updateHighlight()
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+
 .rawhtml {
   padding: 0.7rem 1rem;
   border-radius: 5px;
   background: #000;
   color: #fff;
   overflow-x: auto;
+}
+.html_preview {
+  padding: 1rem;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: block;
+  white-space: pre-wrap;
+  background-color: #f5f5f5;
+  color: #bd4147;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
 }
 .tag_selector {
   font-size: 0.875rem;

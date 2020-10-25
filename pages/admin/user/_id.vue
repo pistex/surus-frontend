@@ -215,7 +215,4 @@ export default {
 .left-border {
   border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
-.row-border {
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
-}
 </style>

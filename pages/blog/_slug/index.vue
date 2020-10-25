@@ -371,6 +371,7 @@
 
 <script>
 import errorResponseAlert from '@/helpers/axios-request-error'
+import { hljs } from '@/plugins/highlight.js'
 export default {
   async asyncData ({ $axios, store, params }) {
     let htmlBody = ''
@@ -469,6 +470,7 @@ export default {
     this.cloudStorageRoot = process.env.CLOUD_STORAGE_ROOT
   },
   mounted () {
+    hljs.initHighlighting()
     this.refreshCommentAndReply()
   },
   methods: {

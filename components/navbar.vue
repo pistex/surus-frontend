@@ -133,7 +133,7 @@
             <p>
               {{
                 $auth.$state.user.email.filter((object) => {
-                  return (object.is_primary = true);
+                  return (object.primary === true);
                 })[0].email
               }}
             </p>
@@ -150,8 +150,274 @@
               You can contact admin to become a creator.
             </p>
           </v-card-text>
+          <v-dialog
+            v-model="profileEditor"
+            fullscreen
+            hide-overlay
+            transition="dialog-bottom-transition"
+          >
+            <v-card>
+              <v-toolbar
+                dark
+              >
+                <v-btn
+                  icon
+                  dark
+                  @click="profileEditor = false"
+                >
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+                <v-toolbar-title class="text-button">
+                  Edit profile
+                </v-toolbar-title>
+                <v-spacer />
+
+                <v-btn
+                  color="success"
+                  @click="saveProfile()"
+                >
+                  Save
+                </v-btn>
+              </v-toolbar>
+              <v-row>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 2" class="black white--text text-button">
+                  <v-container
+                    fill-height
+                    justify-center
+                  >
+                    Profile Picture
+                  </v-container>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 10" align="start" class="buttom-border">
+                  <v-container id="profile_picture_container">
+                    <v-img :src="newUserProfile.profile_picture ? createObjectURL(newUserProfile.profile_picture) : $auth.user.profile_picture" max-width="100%" max-height="100%" />
+                  </v-container>
+                  <v-container>
+                    <v-file-input
+                      ref="imageFileField"
+                      v-model="newUserProfile.profile_picture"
+                      prepend-icon="mdi-image"
+                      color="black"
+                      hide-details="auto"
+                      type="file"
+                    />
+                  </v-container>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 2" class="black white--text text-button">
+                  <v-container
+                    fill-height
+                    justify-center
+                  >
+                    username
+                  </v-container>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 10" align="start" class="buttom-border">
+                  <v-container>
+                    <v-text-field
+                      v-model="newUserProfile.username"
+                      label="username"
+                      color="black"
+                      :append-icon="newUserProfile.username !== currentUserProfile.username ? 'mdi-undo-variant' : ''"
+                      @click:append="newUserProfile.username = currentUserProfile.username"
+                    />
+                  </v-container>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 2" class="black white--text text-button">
+                  <v-container
+                    fill-height
+                    justify-center
+                  >
+                    first name
+                  </v-container>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 10" align="start" class="buttom-border">
+                  <v-container>
+                    <v-text-field
+                      v-model="newUserProfile.first_name"
+                      label="first name"
+                      color="black"
+                      :append-icon="newUserProfile.first_name !== currentUserProfile.first_name ? 'mdi-undo-variant' : ''"
+                      @click:append="newUserProfile.first_name = currentUserProfile.first_name"
+                    />
+                  </v-container>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 2" class="black white--text text-button">
+                  <v-container
+                    fill-height
+                    justify-center
+                  >
+                    last name
+                  </v-container>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 10" align="start" class="buttom-border">
+                  <v-container>
+                    <v-text-field
+                      v-model="newUserProfile.last_name"
+                      label="last name"
+                      color="black"
+                      :append-icon="newUserProfile.last_name !== currentUserProfile.last_name ? 'mdi-undo-variant' : ''"
+                      @click:append="newUserProfile.last_name = currentUserProfile.last_name"
+                    />
+                  </v-container>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 2" class="black white--text text-button">
+                  <v-container
+                    fill-height
+                    justify-center
+                  >
+                    password
+                  </v-container>
+                </v-col>
+                <v-col v-if="$auth.user.password_is_set" :cols="$vuetify.breakpoint.smAndDown ? 12: 10" align="start" class="buttom-border">
+                  <v-container class="pb-0">
+                    <v-text-field
+                      v-model="updatePassword.old_password"
+                      color="black"
+                      type="password"
+                      label="old password"
+                    />
+                    <v-text-field
+                      v-model="updatePassword.new_password1"
+                      color="black"
+                      type="password"
+                      label="new password"
+                    />
+                    <v-text-field
+                      v-model="updatePassword.new_password2"
+                      color="black"
+                      type="password"
+                      label="confirm password"
+                    />
+                  </v-container>
+                  <v-container class="pt-0">
+                    <v-btn small color="info" @click="changePassword()">
+                      change
+                    </v-btn>
+                    <p>
+                      <small>When the password is successfully changed, the user will be automatically logged out.</small>
+                    </p>
+                  </v-container>
+                </v-col>
+                <v-col v-else :cols="$vuetify.breakpoint.smAndDown ? 12: 10" align="start" class="buttom-border">
+                  <v-container>
+                    <p>
+                      Your account is signed up by third party account. The account password has not been set. You can set your password using the following form.
+                    </p>
+                    <v-text-field
+                      v-model="initializePsswordForm.new_password"
+                      :disabled="userPasswordIsInitialized"
+                      color="black"
+                      type="password"
+                      label="new password"
+                    />
+                    <v-text-field
+                      v-model="initializePsswordForm.confirm_password"
+                      :disabled="userPasswordIsInitialized"
+                      color="black"
+                      type="password"
+                      label="confirm password"
+                    />
+                    <v-btn
+                      :disabled="userPasswordIsInitialized"
+                      color="info"
+                      @click="initializePassword"
+                    >
+                      {{ userPasswordIsInitialized ? 'Password is set':'Set password' }}
+                    </v-btn>
+                  </v-container>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 2" class="black white--text text-button">
+                  <v-container
+                    fill-height
+                    justify-center
+                  >
+                    email
+                  </v-container>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 10" align="start" class="py-0">
+                  <v-row v-for="email in newUserProfile.email" :key="`email_${email.id}`" class="buttom-border">
+                    <v-col :cols="$vuetify.breakpoint.smAndDown ? 12 : 6">
+                      <v-container fill-height>
+                        {{ email.email }}
+                        <v-chip class="ml-2" x-small :color="email.verified ? 'success': 'grey'">
+                          {{ email.verified ? 'verified': 'not verified' }}
+                        </v-chip>
+                        <v-chip v-if="email.primary" class="ml-2" x-small color="info">
+                          primary
+                        </v-chip>
+                      </v-container>
+                    </v-col>
+                    <v-col :cols="$vuetify.breakpoint.smAndDown ? 6 : 3" py-0>
+                      <v-container v-if="!email.primary" justify-center text-center>
+                        <v-btn small color="error" @click="removeEmail(email.id)">
+                          delete
+                        </v-btn>
+                      </v-container>
+                    </v-col>
+                    <v-col :cols="$vuetify.breakpoint.smAndDown ? 6 : 3" py-0>
+                      <v-container v-if="!email.primary && email.verified" justify-center text-center>
+                        <v-btn small color="info" @click="makeEmailPrimary(email.id)">
+                          make primary
+                        </v-btn>
+                      </v-container>
+                      <v-container v-if="!email.primary && !email.verified" justify-center text-center>
+                        <v-btn small color="info" :disabled="verificationEmailIsSent" @click="resendEmail(email.id)">
+                          resend verification email
+                        </v-btn>
+                      </v-container>
+                    </v-col>
+                  </v-row>
+                  <v-row class="buttom-border">
+                    <v-col cols="10" class="py-0">
+                      <v-container>
+                        <v-text-field
+                          v-model="newEmail.email"
+                          color="black"
+                          label="new email"
+                        />
+                      </v-container>
+                    </v-col>
+                    <v-col cols="2" class="py-0">
+                      <v-container justify-center text-center fill-height>
+                        <v-btn small color="info" @click="addEmail()">
+                          add
+                        </v-btn>
+                      </v-container>
+                    </v-col>
+                  </v-row>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 2" class="black white--text text-button">
+                  <v-container
+                    fill-height
+                    justify-center
+                  >
+                    social media
+                  </v-container>
+                </v-col>
+                <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 10" align="start" class="buttom-border">
+                  <small>Click on the icon to connect.</small>
+                  <v-container>
+                    <v-btn icon @click="connectToFacebook()">
+                      <v-icon :color="$auth.user.social.facebook ? 'success' : 'grey'">
+                        mdi-facebook
+                      </v-icon>
+                    </v-btn>
+                  </v-container>
+                  <v-container>
+                    <v-btn icon @click="connectToGoogle()">
+                      <v-container>
+                        <v-icon :color="$auth.user.social.google ? 'success' : 'grey'">
+                          mdi-google
+                        </v-icon>
+                      </v-container>
+                    </v-btn>
+                  </v-container>
+                </v-col>
+              </v-row>
+            </v-card>
+          </v-dialog>
           <v-card-actions class="justify-center">
-            <v-btn text outlined color="info">
+            <v-btn text outlined color="info" @click="activateProfileEditor()">
               Edit profile
             </v-btn>
             <v-spacer />
@@ -252,14 +518,21 @@ export default {
         email: null,
         password1: null,
         password2: null
-      }
+      },
+      currentUserProfile: {},
+      newUserProfile: {},
+      initializePsswordForm: {},
+      userPasswordIsInitialized: false,
+      updatePassword: {},
+      newEmail: {},
+      verificationEmailIsSent: false
     }
   },
   computed: {
     ...mapGetters('authenticationStore', ['authenticationStatus'])
   },
   methods: {
-    ...mapActions('authenticationStore', ['postLogin', 'postLogout', 'firebaseFacebookAuthentication', 'firebaseGoogleAuthentication']),
+    ...mapActions('authenticationStore', ['postLogin', 'postLogout', 'firebaseFacebookAuthentication', 'firebaseGoogleAuthentication', 'firebaseFacebookConnect', 'firebaseGoogleConnect']),
     async postRegister () {
       if (!this.registerForm.user && !this.registerForm.email) {
         alert('Please fill required filed.')
@@ -293,6 +566,123 @@ export default {
       } catch (error) {
         errorResponseAlert(error)
       }
+    },
+    async initializePassword () {
+      if (this.$auth.user.password_is_set) {
+        return
+      }
+      if (this.initializePsswordForm.new_password !== this.initializePsswordForm.confirm_password) {
+        alert('Password comfirmation failed.')
+      } else {
+        try {
+          await this.$axios.post('/authentication/password/initialize/', this.initializePsswordForm)
+          this.userPasswordIsInitialized = true
+        } catch (error) {
+          errorResponseAlert(error)
+        }
+      }
+    },
+    async changePassword () {
+      try {
+        await this.$axios.post('authentication/password/change/', this.updatePassword)
+        this.postLogout()
+        this.profileEditor = false
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
+    createObjectURL (file) {
+      return URL.createObjectURL(file)
+    },
+    activateProfileEditor () {
+      this.profileEditor = true
+      this.currentUserProfile = {
+        username: this.$auth.user.username,
+        first_name: this.$auth.user.first_name,
+        last_name: this.$auth.user.last_name
+      }
+      this.newUserProfile = {
+        ...this.currentUserProfile,
+        profile_picture: null,
+        email: this.$auth.user.email.sort((a, b) => { return a.primary ? -1 : 1 })
+      }
+    },
+    async saveProfile () {
+      if (!this.newUserProfile.profile_picture) { delete this.newUserProfile.profile_picture }
+      delete this.newUserProfile.email
+      const profileIsUpdate = JSON.stringify(this.newUserProfile) !== JSON.stringify(this.currentUserProfile)
+      if (profileIsUpdate) {
+        try {
+          const formData = new FormData()
+          formData.append('username', this.newUserProfile.username)
+          formData.append('first_name', this.newUserProfile.first_name)
+          formData.append('last_name', this.newUserProfile.last_name)
+          formData.append('profile_picture', this.newUserProfile.profile_picture)
+          await this.$axios.patch(`/user_profile/${this.$auth.user.id}/`, formData)
+          await this.$auth.fetchUser()
+        } catch (error) {
+          errorResponseAlert(error)
+        }
+      }
+      this.profileEditor = false
+    },
+    async makeEmailPrimary (emailId) {
+      try {
+        await this.$axios.patch(`/user_email/${emailId}/`, { id: emailId, primary: true })
+        await this.$auth.fetchUser()
+        this.newUserProfile.email = this.$auth.user.email.sort((a, b) => { return a.primary ? -1 : 1 })
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
+    async addEmail () {
+      try {
+        await this.$axios.post('/user_email/', this.newEmail)
+        this.newEmail.email = ''
+        await this.$auth.fetchUser()
+        this.newUserProfile.email = this.$auth.user.email.sort((a, b) => { return a.primary ? -1 : 1 })
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
+    async removeEmail (emailId) {
+      try {
+        await this.$axios.delete(`/user_email/${emailId}/`)
+        await this.$auth.fetchUser()
+        this.newUserProfile.email = this.$auth.user.email.sort((a, b) => { return a.primary ? -1 : 1 })
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
+    async resendEmail (emailId) {
+      try {
+        await this.$axios.post(`/resend_verification_email/${emailId}/`)
+        this.verificationEmailIsSent = true
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
+    async connectToFacebook () {
+      if (this.$auth.user.social.facebook) {
+        return
+      }
+      try {
+        await this.firebaseFacebookConnect()
+        await this.$auth.fetchUser()
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
+    async connectToGoogle () {
+      if (this.$auth.user.social.google) {
+        return
+      }
+      try {
+        await this.firebaseGoogleConnect()
+        await this.$auth.fetchUser()
+      } catch (error) {
+        errorResponseAlert(error)
+      }
     }
   }
 }
@@ -301,5 +691,11 @@ export default {
 <style scoped>
 .menu-btn {
   width: 140px;
+}
+#profile_picture_container {
+  width: 200px; height: 200px;
+}
+.buttom-border {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 </style>

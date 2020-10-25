@@ -80,6 +80,26 @@ export const authenticationStore = {
       } catch (error) {
         errorResponseAlert(error)
       }
+    },
+    async firebaseFacebookConnect () {
+      const provider = new Firebase.auth.FacebookAuthProvider()
+      try {
+        const firebaseLogin = await Firebase.auth().signInWithPopup(provider)
+        const accessToken = firebaseLogin.credential.accessToken
+        await this.$axios.post('authentication/facebook/connect/', { access_token: accessToken })
+      } catch (error) {
+        errorResponseAlert(error)
+      }
+    },
+    async firebaseGoogleConnect () {
+      const provider = new Firebase.auth.GoogleAuthProvider().addScope('email')
+      try {
+        const firebaseLogin = await Firebase.auth().signInWithPopup(provider)
+        const accessToken = firebaseLogin.credential.accessToken
+        await this.$axios.post('authentication/google/connect/', { access_token: accessToken })
+      } catch (error) {
+        errorResponseAlert(error)
+      }
     }
   },
   mutations: {

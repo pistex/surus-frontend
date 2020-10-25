@@ -10,8 +10,9 @@
           :key="blog.id"
           gradient="to top right, rgba(0,0,0,.4), rgba(0,0,0,1)"
           :to="`/blog/${blog.slug}/`"
-          :src="allImages.find((object) => object.id == blog.thumbnail).image"
+          :src="allImages.length > 0 ? allImages.find((object) => object.id == blog.thumbnail).image : ''"
         >
+          <!-- set the condition allImages.length > 0 to prevent error. -->
           <v-container
             fill-height
             class="align-end headline"
@@ -33,8 +34,8 @@ export default {
     ...mapGetters('blogStore', ['allBlogs', 'allImages'])
   },
   created () {
-    this.getAllBlogs()
     this.getImages()
+    this.getAllBlogs()
   },
   methods: {
     ...mapActions('blogStore', ['getAllBlogs', 'getImages'])
