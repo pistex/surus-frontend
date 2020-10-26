@@ -690,7 +690,12 @@ export default {
   },
   head () {
     return {
-      title: this.isPrimaryLanguge ? this.blogTitle : this.blogTitleTh
+      title: this.isPrimaryLanguge ? this.blogTitle : this.blogTitleTh,
+      meta: [
+        { hid: 'og-title', property: 'og:title', content: this.isPrimaryLanguge ? this.blogTitle : this.blogTitleTh },
+        { hid: 'og-image', property: 'og:image', content: this.blogThumbnail },
+        { hid: 'og-description', property: 'og:description', content: this.isPrimaryLanguge ? this.htmlBody.replace(/<[^>]*>/g, '') : this.htmlBody.replace(/<[^>]*>/g, '') }
+      ]
     }
   }
 }

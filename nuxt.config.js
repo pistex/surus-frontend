@@ -18,8 +18,7 @@ export default async function () {
       titleTemplate: '%s - S U R U S',
       meta: [
         { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { hid: 'description', name: 'description', content: '' }
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
       ]
     },
 
@@ -59,8 +58,8 @@ export default async function () {
     },
 
     axios: {
-      baseURL: 'http://127.0.0.1:8000'
-      // baseURL: await accessSecret('projects/808537418853/secrets/API_BASE_URL/versions/1')
+      // baseURL: 'http://127.0.0.1:8000'
+      baseURL: await accessSecret('projects/808537418853/secrets/API_BASE_URL/versions/1')
     },
 
     build: {
