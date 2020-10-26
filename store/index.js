@@ -12,6 +12,13 @@ const vuex = new Vuex.Store({
   actions: {
     sleep (ms) {
       return new Promise(resolve => setTimeout(resolve, ms))
+    },
+    nuxtServerInit ({ commit }, { $auth, $cookies }) {
+      const accessToken = $cookies.get('auth._token.local')
+      if (!accessToken) {
+        $auth.logout()
+        commit('authenticationStore/logoutSuccess')
+      }
     }
   },
   modules: {

@@ -2,7 +2,7 @@
   <client-only>
     <v-container id="admin_panel_dashboard" class="pt-0">
       <adminNavbar />
-      <v-container v-if="this.$auth.$state.user && this.$auth.$state.user.is_superuser" class="pt-0">
+      <v-container v-if="!!this.$auth.user.is_superuser" class="pt-0">
         <v-row align="center" justify="center">
           <v-col cols="4" class="pb-0">
             <v-container class="text-button black white--text">

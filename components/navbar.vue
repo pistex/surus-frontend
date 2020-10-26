@@ -105,7 +105,7 @@
             </v-container>
           </v-card-text>
         </v-card>
-        <v-card v-if="$auth.$state.user" height="100%">
+        <v-card v-if="$auth.user" height="100%">
           <v-card-title class="justify-center pb-0">
             <p class="text-h6">
               Welcome!
@@ -113,26 +113,26 @@
           </v-card-title>
           <v-container class="pa-0 text-center">
             <v-avatar size="100">
-              <v-img :src="$auth.$state.user.profile_picture" />
+              <v-img :src="$auth.user.profile_picture" />
             </v-avatar>
           </v-container>
           <v-card-title class="justify-center py-0">
             <p class="text-h6">
               {{
-                $auth.$state.user.first_name !== "" &&
-                  $auth.$state.user.first_name !== ""
-                  ? `${$auth.$state.user.first_name} ${$auth.$state.user.last_name}`
-                  : $auth.$state.user.username
+                $auth.user.first_name !== "" &&
+                  $auth.user.first_name !== ""
+                  ? `${$auth.user.first_name} ${$auth.user.last_name}`
+                  : $auth.user.username
               }}
             </p>
           </v-card-title>
           <v-card-subtitle class="text-center py-0">
-            <v-chip :color="($auth.$state.user.email.filter((email) => {return email.primary})[0].verified) ? 'success' : ''" x-small>
-              {{ ($auth.$state.user.email.filter((email) => {return email.primary})[0].verified) ? 'verified' : 'not verified' }}
+            <v-chip :color="($auth.user.email.filter((email) => {return email.primary})[0].verified) ? 'success' : ''" x-small>
+              {{ ($auth.user.email.filter((email) => {return email.primary})[0].verified) ? 'verified' : 'not verified' }}
             </v-chip>
             <p>
               {{
-                $auth.$state.user.email.filter((object) => {
+                $auth.user.email.filter((object) => {
                   return (object.primary === true);
                 })[0].email
               }}
@@ -141,12 +141,12 @@
           <v-card-text class="white--text text-center py-0">
             <p>
               {{
-                $auth.$state.user.groups.includes("Creator")
+                $auth.user.groups.includes("Creator")
                   ? "Let's writing something!"
                   : "Welcome to our community!"
               }}
             </p>
-            <p v-if="!$auth.$state.user.groups.includes('Creator')">
+            <p v-if="!$auth.user.groups.includes('Creator')">
               You can contact admin to become a creator.
             </p>
           </v-card-text>
@@ -617,7 +617,9 @@ export default {
           formData.append('username', this.newUserProfile.username)
           formData.append('first_name', this.newUserProfile.first_name)
           formData.append('last_name', this.newUserProfile.last_name)
-          formData.append('profile_picture', this.newUserProfile.profile_picture)
+          if (this.newUserProfile.profile_picture) {
+            formData.append('profile_picture', this.newUserProfile.profile_picture)
+          }
           await this.$axios.patch(`/user_profile/${this.$auth.user.id}/`, formData)
           await this.$auth.fetchUser()
         } catch (error) {

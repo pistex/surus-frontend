@@ -46,7 +46,7 @@
           maxlength="1000"
         />
         <v-text-field
-          v-if="!$auth.$state.loggedIn"
+          v-if="!$auth.loggedIn"
           v-model="reporterEmail"
           label="Email"
         />
@@ -76,7 +76,7 @@ export default {
   },
   methods: {
     async postIssue () {
-      if (!this.$auth.$state.loggedIn && this.reporterEmail === '') {
+      if (!this.$auth.loggedIn && this.reporterEmail === '') {
         alert('Please provide your contact.')
         return
       }
@@ -85,7 +85,7 @@ export default {
         return
       }
       let recaptchaToken = ''
-      if (!this.$auth.$state.loggedIn) {
+      if (!this.$auth.loggedIn) {
         try {
           recaptchaToken = await this.$recaptcha.getResponse()
         } catch (error) {

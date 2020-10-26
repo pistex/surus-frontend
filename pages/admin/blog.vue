@@ -2,7 +2,7 @@
   <v-container id="admin_panel_blog">
     <client-only>
       <adminNavbar />
-      <v-sheet v-if="this.$auth.$state.user && this.$auth.$state.user.is_superuser">
+      <v-sheet v-if="!!this.$auth.user.is_superuser">
         <v-card dark tile>
           <v-card-title>
             <v-row no-gutters>

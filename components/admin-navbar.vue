@@ -41,7 +41,7 @@ export default {
     }
   },
   beforeCreate () {
-    if (!this.$auth.$state.loggedIn || (this.$auth.$state.user && !this.$auth.$state.user.is_superuser)) {
+    if (!this.$auth.loggedIn || !this.$auth.user.is_superuser) {
       this.$router.push('/')
     }
   },

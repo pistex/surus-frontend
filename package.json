@@ -17,6 +17,7 @@
     "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/firebase": "^6.1.1",
     "@nuxtjs/recaptcha": "^0.6.2",
+    "cookie-universal-nuxt": "^2.1.4",
     "core-js": "^3.6.5",
     "firebase": "^7.24.0",
     "highlight.js": "^10.2.1",

@@ -1,7 +1,7 @@
 <template>
   <v-container v-if="allBlogs.filter(blog => {return blog.tag.map(tag => tag.text).includes($route.params.tag)}).length > 0" :id="`blog_tag_${$route.params.tag}`">
     <v-row justify="center">
-      <v-col v-if="$auth.$state.loggedIn && $auth.$state.user.groups.includes('Creator')" cols="10" class="pb-2 px-0" align="start">
+      <v-col v-if="$auth.loggedIn && $auth.user.groups.includes('Creator')" cols="10" class="pb-2 px-0" align="start">
         <v-btn dark to="/blog/create">
           Create
         </v-btn>

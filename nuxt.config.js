@@ -33,7 +33,8 @@ export default async function () {
       '@nuxtjs/axios',
       '@nuxtjs/auth',
       '@nuxtjs/recaptcha',
-      '@nuxtjs/firebase'
+      '@nuxtjs/firebase',
+      'cookie-universal-nuxt'
     ],
 
     recaptcha: {
@@ -58,8 +59,7 @@ export default async function () {
     },
 
     axios: {
-      baseURL: 'http://127.0.0.1:8000'
-      // baseURL: await accessSecret('projects/808537418853/secrets/API_BASE_URL/versions/1')
+      baseURL: await accessSecret('projects/808537418853/secrets/API_BASE_URL/versions/1')
     },
 
     build: {

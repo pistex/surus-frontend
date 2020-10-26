@@ -2,7 +2,7 @@
   <client-only>
     <v-container :id="`user_detail${$route.params.id}`">
       <adminNavbar />
-      <v-sheet v-if="this.$auth.$state.user && this.$auth.$state.user.is_superuser && userDetail">
+      <v-sheet v-if="!!this.$auth.user.is_superuser && userDetail">
         <v-card dark tile>
           <v-card-title class="pa-0">
             <v-row v-if="userDetail" no-gutters align="center">

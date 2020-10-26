@@ -1,8 +1,8 @@
 <template>
   <v-container id="blog">
-    <v-row v-if="$auth.$state.loggedIn && $auth.$state.user.groups.includes('Creator')" justify="center">
+    <v-row justify="center">
       <v-col cols="10" class="pb-2 px-0" align="start">
-        <v-btn dark to="/blog/create">
+        <v-btn v-if="$auth.loggedIn && $auth.user.groups.includes('Creator')" dark to="/blog/create">
           Create
         </v-btn>
         <v-btn dark @click="isPrimaryLangauge = !isPrimaryLangauge">
