@@ -105,7 +105,7 @@
             </v-container>
           </v-card-text>
         </v-card>
-        <v-card v-if="$auth.$state.loggedIn" height="100%">
+        <v-card v-if="$auth.$state.user" height="100%">
           <v-card-title class="justify-center pb-0">
             <p class="text-h6">
               Welcome!
@@ -360,7 +360,7 @@
                           make primary
                         </v-btn>
                       </v-container>
-                      <v-container v-if="!email.primary && !email.verified" justify-center text-center>
+                      <v-container v-if="!email.verified" justify-center text-center>
                         <v-btn small color="info" :disabled="verificationEmailIsSent" @click="resendEmail(email.id)">
                           resend verification email
                         </v-btn>

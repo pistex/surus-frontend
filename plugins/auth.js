@@ -13,7 +13,8 @@ async function tokenRefresher ($auth, $axios, accessToken, refreshToken) {
       const decodedToken = jwtDecode(accessToken)
       return decodedToken.exp
     } catch (error) {
-      $auth.logout()
+      await $auth.logout()
+      delete $axios.defaults.headers.common['backend-authorization']
       if (process.client) {
         alert('Authentication token is expired. The user has been automatically logged out.')
       }

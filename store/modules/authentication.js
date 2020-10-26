@@ -35,7 +35,8 @@ export const authenticationStore = {
     async postLogout ({ commit }) {
       try {
         await this.$axios.post('/authentication/logout/')
-        delete this.$axios.defaults.headers.common.Authorization
+        await this.$auth.logout()
+        delete this.$axios.defaults.headers.common['backend-authorization']
         commit('logoutSuccess')
       } catch (error) {
         errorResponseAlert(error)
@@ -124,7 +125,6 @@ export const authenticationStore = {
     },
     logoutSuccess (state) {
       state.authenticationStatus = 'No user logged in.'
-      this.$auth.logout()
     }
   }
 }
