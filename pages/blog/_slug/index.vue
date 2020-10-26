@@ -364,6 +364,7 @@
         >
           Facebook comment
         </v-container>
+        <v-container class="fb-comments" :data-href="`https://surus-frontend-enj3kcn2iq-as.a.run.app/blog/${blogSlug}`" :data-width=" $vuetify.breakpoint.smAndDown? 360: 325" data-numposts="8" />
       </v-col>
     </v-row>
   </v-container>
@@ -437,7 +438,8 @@ export default {
           }
         })
       }
-      return { htmlBody, htmlBodyTh, blogId, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor, allComments, allReplies, blogTag, isPrimaryLanguge }
+      const blogSlug = params.slug
+      return { blogSlug, htmlBody, htmlBodyTh, blogId, blogTitle, blogTitleTh, blogThumbnail, blogIsEdited, blogHistory, blogHistorySelector, blogAuthor, allComments, allReplies, blogTag, isPrimaryLanguge }
     } catch (error) {
       errorResponseAlert(error)
       throw new Error(error)
@@ -690,6 +692,15 @@ export default {
   },
   head () {
     return {
+      script: [
+        {
+          src: 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v8.0&appId=388331902503921&autoLogAppEvents=1',
+          crossorigin: 'anonymous',
+          nonce: 'AvXB5kZk',
+          async: true,
+          defer: true
+        }
+      ],
       title: this.isPrimaryLanguge ? this.blogTitle : this.blogTitleTh,
       meta: [
         { hid: 'og-title', property: 'og:title', content: this.isPrimaryLanguge ? this.blogTitle : this.blogTitleTh },
