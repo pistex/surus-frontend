@@ -1,5 +1,5 @@
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager'
-if (!process.env.GOOGLE_APPLICATION_CREDENTIALS & process.env.NODE_ENV !== 'production') {
+if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   process.env.GOOGLE_APPLICATION_CREDENTIALS = require('path').resolve(__dirname, '.secret/credential.json')
 }
 const secretManagerClient = new SecretManagerServiceClient()
