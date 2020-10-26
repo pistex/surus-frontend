@@ -16,10 +16,7 @@ const vuex = new Vuex.Store({
     nuxtServerInit ({ commit }, { $auth, $cookies }) {
       const accessToken = $cookies.get('auth._token.local')
       const isLoggedIn = $auth.loggedIn
-      if (!accessToken) {
-        if (!isLoggedIn) {
-          return
-        }
+      if (!accessToken & isLoggedIn) {
         $auth.logout()
         commit('authenticationStore/logoutSuccess')
       }
