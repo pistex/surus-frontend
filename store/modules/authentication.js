@@ -37,6 +37,7 @@ export const authenticationStore = {
         await this.$axios.post('/authentication/logout/')
         await this.$auth.logout()
         delete this.$axios.defaults.headers.common['backend-authorization']
+        this.$router.go()
         commit('logoutSuccess')
       } catch (error) {
         errorResponseAlert(error)
