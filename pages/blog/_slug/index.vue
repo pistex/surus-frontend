@@ -166,12 +166,12 @@
         <v-container>
           <v-card v-for="comment in allComments" :key="`comment_${comment.id}`" class="mb-4">
             <v-card-actions class="justify-end pb-0">
-              <v-btn v-if="$auth.loggedIn &&($auth.user.is_superuser || comment.user.username === $auth.user.username)" x-small text @click="activateCommentEditior(comment.id)">
+              <v-btn v-if="$auth.loggedIn &&($auth.user.is_superuser || (comment.user && comment.user.username === $auth.user.username))" x-small text @click="activateCommentEditior(comment.id)">
                 <v-icon small>
                   mdi-pencil
                 </v-icon>
               </v-btn>
-              <v-btn v-if="$auth.loggedIn &&($auth.user.is_superuser || comment.user.username === $auth.user.username)" x-small text @click="deleteComment(comment.id)">
+              <v-btn v-if="$auth.loggedIn &&($auth.user.is_superuser || (comment.user && comment.user.username === $auth.user.username))" x-small text @click="deleteComment(comment.id)">
                 <v-icon small>
                   mdi-delete
                 </v-icon>
@@ -241,12 +241,12 @@
             </v-card-text>
             <v-card v-for="reply in allReplies.filter((object) => {return object.comment.id == comment.id})" :key="`reply_${reply.id}`" flat outlined class="ml-8 mr-4 mb-2">
               <v-card-actions class="justify-end pb-0">
-                <v-btn v-if="$auth.loggedIn && ($auth.user.is_superuser || reply.user.username === $auth.user.username)" x-small text @click="activateReplyEditor(reply.id)">
+                <v-btn v-if="$auth.loggedIn && ($auth.user.is_superuser || (reply.user && reply.user.username === $auth.user.username))" x-small text @click="activateReplyEditor(reply.id)">
                   <v-icon small>
                     mdi-pencil
                   </v-icon>
                 </v-btn>
-                <v-btn v-if="$auth.loggedIn && ($auth.user.is_superuser || reply.user.username === $auth.user.username)" x-small text @click="deleteReply(reply.id)">
+                <v-btn v-if="$auth.loggedIn && ($auth.user.is_superuser || (reply.user && reply.user.username === $auth.user.username))" x-small text @click="deleteReply(reply.id)">
                   <v-icon small>
                     mdi-delete
                   </v-icon>
