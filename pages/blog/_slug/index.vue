@@ -1,8 +1,9 @@
 <template>
   <v-container id="blog_post">
     <v-row justify="center" no-gutters>
-      <v-col cols="10" align="end" class="pb-2">
+      <v-col :cols="$vuetify.breakpoint.smAndDown ? 12: 10" :align="$vuetify.breakpoint.smAndDown ? 'center': 'end'" class="pb-2">
         <v-btn
+          :small="$vuetify.breakpoint.smAndDown"
           dark
           class="mr-2"
           @click="issueReporterPopup = true"
@@ -47,6 +48,7 @@
         </v-dialog>
         <v-btn
           v-if="$auth.loggedIn && ($auth.user.username === blogAuthor.username || $auth.user.is_superuser)"
+          :small="$vuetify.breakpoint.smAndDown"
           dark
           class="mr-2"
           :to="`/blog/${$route.params.slug}/edit`"
@@ -83,13 +85,14 @@
         <v-btn
           v-if="blogIsEdited"
           id="history_button"
+          :small="$vuetify.breakpoint.smAndDown"
           dark
           class="mr-2"
           @click="historyPopup = true"
         >
           History
         </v-btn>
-        <v-btn dark @click="isPrimaryLanguge = !isPrimaryLanguge">
+        <v-btn dark :small="$vuetify.breakpoint.smAndDown" @click="isPrimaryLanguge = !isPrimaryLanguge">
           {{ isPrimaryLanguge ? "EN" : "TH" }}
         </v-btn>
       </v-col>
