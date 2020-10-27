@@ -66,6 +66,7 @@ export default async function () {
       transpile: ['tiptap.js', 'tiptap-extentions.js', 'highlight.js', 'vue-clipboard2']
     },
     auth: {
+      redirect: { logout: false },
       localStorage: false,
       strategies: {
         local: {
