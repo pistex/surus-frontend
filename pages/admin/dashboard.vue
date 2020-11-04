@@ -167,8 +167,8 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('blogStore', ['allBlogs']),
-    ...mapGetters('adminPanel', ['allUsers'])
+    ...mapGetters('blog', ['allBlogs']),
+    ...mapGetters('admin', ['allUsers'])
   },
   created () {
     this.getAllBlogs()
@@ -176,8 +176,8 @@ export default {
     this.getAllIssues()
   },
   methods: {
-    ...mapActions('blogStore', ['getAllBlogs']),
-    ...mapActions('adminPanel', ['getAllUsers']),
+    ...mapActions('blog', ['getAllBlogs']),
+    ...mapActions('admin', ['getAllUsers']),
     async addToFeatured () {
       const onOldArticle = this.allBlogs.filter((blog) => { return blog.title.en === this.newFeaturedArticle })[0]
       const updateData = {

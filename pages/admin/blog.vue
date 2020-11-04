@@ -102,7 +102,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('blogStore', ['allBlogs', 'allImages'])
+    ...mapGetters('blog', ['allBlogs', 'allImages'])
   },
   async created () {
     await this.getImages()
@@ -113,7 +113,7 @@ export default {
     })
   },
   methods: {
-    ...mapActions('blogStore', ['getAllBlogs', 'getImages']),
+    ...mapActions('blog', ['getAllBlogs', 'getImages']),
     filterBlogHistory (id) {
       if (this.blogHistory.filter((object) => { return object.id === id }).length > 0) {
         return Object.keys(this.blogHistory.filter((object) => { return object.id === id })[0])

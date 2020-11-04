@@ -603,7 +603,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('blogStore', ['allTags'])
+    ...mapGetters('blog', ['allTags'])
   },
   created () {
     this.getImages()
@@ -611,7 +611,7 @@ export default {
     this.getThisBlog()
   },
   methods: {
-    ...mapActions('blogStore', ['getTags']),
+    ...mapActions('blog', ['getTags']),
     async getThisBlog () {
       try {
         const filteredArticle = await this.$axios.get(`/blog/?slug=${this.$route.params.slug}`)

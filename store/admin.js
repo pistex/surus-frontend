@@ -1,10 +1,9 @@
 import errorResponseAlert from '@/helpers/axios-request-error'
-export const adminPanel = {
-  namespaced: true,
-  state: {
+const store = {
+  state: () => ({
     allUsers: [],
     allGroups: []
-  },
+  }),
   getters: {
     allUsers (state) {
       return state.allUsers
@@ -87,3 +86,8 @@ export const adminPanel = {
     }
   }
 }
+
+export const state = store.state
+export const getters = store.getters
+export const actions = store.actions
+export const mutations = store.mutations

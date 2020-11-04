@@ -19,6 +19,7 @@ export default function errorResponseAlert (error) {
       }
     }
   } else {
+    alert(error)
     throw new Error(error)
   }
 }

@@ -1,8 +1,7 @@
 import errorResponseAlert from '@/helpers/axios-request-error'
 import Firebase from 'firebase/app'
-export const authenticationStore = {
-  namespaced: true,
-  state: { authenticationStatus: 'No user logged in.' },
+const store = {
+  state: () => ({ authenticationStatus: 'No user logged in.' }),
   getters: {
     authenticationStatus (state) {
       return state.authenticationStatus
@@ -122,10 +121,15 @@ export const authenticationStore = {
       state.authenticationStatus = 'A user is logged in.'
     },
     loginFailure (state, error) {
-      state.authenticationStatus = `Logging in error with status: ${error.response.status}.`
+      state.authenticationStatus = error.response ? `Logging in error with status: ${error.response.status}.` : error
     },
     logoutSuccess (state) {
       state.authenticationStatus = 'No user logged in.'
     }
   }
 }
+
+export const state = store.state
+export const getters = store.getters
+export const actions = store.actions
+export const mutations = store.mutations

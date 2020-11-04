@@ -420,8 +420,8 @@ export default {
         first_name: blogData.data.author.first_name,
         last_name: blogData.data.author.last_name
       }
-      await store.dispatch('blogStore/getImages')
-      const allImages = await store.getters['blogStore/allImages']
+      await store.dispatch('blog/getImages')
+      const allImages = await store.getters['blog/allImages']
       blogThumbnail = allImages.find(
         object => object.id === blogData.data.thumbnail
       ).image

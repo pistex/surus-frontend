@@ -180,7 +180,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('adminPanel', ['allGroups'])
+    ...mapGetters('admin', ['allGroups'])
   },
   async created () {
     await this.getUserDetail()
@@ -189,7 +189,7 @@ export default {
     this.newUserGroup = this.userDetail.groups
   },
   methods: {
-    ...mapActions('adminPanel', ['getAllGroups', 'updateUserGroups']),
+    ...mapActions('admin', ['getAllGroups', 'updateUserGroups']),
     async getUserDetail () {
       try {
         const response = await this.$axios.get(`rest_admin/user/${this.$route.params.id}/`)

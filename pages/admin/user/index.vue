@@ -102,13 +102,13 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('adminPanel', ['allUsers'])
+    ...mapGetters('admin', ['allUsers'])
   },
   created () {
     this.getAllUsers()
   },
   methods: {
-    ...mapActions('adminPanel', ['getAllUsers', 'deleteUser'])
+    ...mapActions('admin', ['getAllUsers', 'deleteUser'])
   },
   head () {
     return { title: 'Users' }

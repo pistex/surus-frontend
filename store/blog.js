@@ -1,11 +1,10 @@
 import errorResponseAlert from '@/helpers/axios-request-error'
-export const blogStore = {
-  namespaced: true,
-  state: {
+const store = {
+  state: () => ({
     allBlogs: [],
     allTags: [],
     allImages: []
-  },
+  }),
   getters: {
     allBlogs (state) {
       return state.allBlogs
@@ -56,3 +55,8 @@ export const blogStore = {
     }
   }
 }
+
+export const state = store.state
+export const getters = store.getters
+export const actions = store.actions
+export const mutations = store.mutations

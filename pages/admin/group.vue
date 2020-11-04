@@ -163,14 +163,14 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('adminPanel', ['allUsers', 'allGroups'])
+    ...mapGetters('admin', ['allUsers', 'allGroups'])
   },
   created () {
     this.getAllGroups()
     this.getAllUsers()
   },
   methods: {
-    ...mapActions('adminPanel', ['getAllUsers', 'getAllGroups', 'postGroup', 'patchGroup', 'deleteGroup', 'updateUserGroups']),
+    ...mapActions('admin', ['getAllUsers', 'getAllGroups', 'postGroup', 'patchGroup', 'deleteGroup', 'updateUserGroups']),
     updateGroupAndMembers (id) {
       const oldGroupName = this.allGroups.filter((group) => { return group.id === id })[0].name
       const oldMembers = this.allUsers.filter((user) => { return user.groups.includes(oldGroupName) }).map(user => user.username)

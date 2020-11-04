@@ -593,7 +593,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('blogStore', ['allTags']),
+    ...mapGetters('blog', ['allTags']),
     rawHtml: {
       get () {
         return this.rawHtmlBuffer
@@ -645,7 +645,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('blogStore', ['getTags']),
+    ...mapActions('blog', ['getTags']),
     setContent () {
       if (process.client) {
         this.editor.setContent(localStorage.getItem('updatedContent'))

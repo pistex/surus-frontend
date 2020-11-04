@@ -47,14 +47,14 @@ export default {
     isPrimaryLanguage () {
       return this.isPrimaryLanguageBuffer
     },
-    ...mapGetters('blogStore', ['allBlogs', 'allImages'])
+    ...mapGetters('blog', ['allBlogs', 'allImages'])
   },
   created () {
     this.getImages()
     this.getAllBlogs()
   },
   methods: {
-    ...mapActions('blogStore', ['getAllBlogs', 'getImages'])
+    ...mapActions('blog', ['getAllBlogs', 'getImages'])
   },
   head () {
     return { title: 'Homepage' }

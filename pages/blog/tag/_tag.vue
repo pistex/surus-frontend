@@ -61,9 +61,9 @@
 import { mapGetters } from 'vuex'
 export default {
   async asyncData ({ store }) {
-    await store.dispatch('blogStore/getAllBlogs')
-    await store.dispatch('blogStore/getImages')
-    const allBlogs = await store.getters['blogStore/allBlogs']
+    await store.dispatch('blog/getAllBlogs')
+    await store.dispatch('blog/getImages')
+    const allBlogs = await store.getters['blog/allBlogs']
     return { allBlogs }
   },
   data () {
@@ -72,7 +72,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('blogStore', ['allImages'])
+    ...mapGetters('blog', ['allImages'])
   },
   created () {
     if (process.browser) {

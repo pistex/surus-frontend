@@ -529,10 +529,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('authenticationStore', ['authenticationStatus'])
+    ...mapGetters('authentication', ['authenticationStatus'])
   },
   methods: {
-    ...mapActions('authenticationStore', ['postLogin', 'postLogout', 'firebaseFacebookAuthentication', 'firebaseGoogleAuthentication', 'firebaseFacebookConnect', 'firebaseGoogleConnect']),
+    ...mapActions('authentication', ['postLogin', 'postLogout', 'firebaseFacebookAuthentication', 'firebaseGoogleAuthentication', 'firebaseFacebookConnect', 'firebaseGoogleConnect']),
     async postRegister () {
       if (!this.registerForm.user && !this.registerForm.email) {
         alert('Please fill required filed.')
