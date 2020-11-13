@@ -1,4 +1,5 @@
-# surus-frontend
+# Fronend part of Surus
+https://github.com/pistex/surus
 
 ## Build Setup
 
